@@ -70,6 +70,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.glassfish.api.admin.ServerEnvironment;
 import org.glassfish.internal.api.Globals;
+import org.glassfish.hk2.api.MultiException;
 
 /**
  * Connection Pool for Connector & JDBC resources<br>
@@ -1004,6 +1005,7 @@ public class ConnectionPool implements ResourcePool, ConnectionLeakListener,
      * this method is called to indicate that the resource is
      * not used by a bean/application anymore
      */
+    @Override
     public void resourceClosed(ResourceHandle h)
             throws IllegalStateException {
         if (_logger.isLoggable(Level.FINE)) {
@@ -1016,7 +1018,10 @@ public class ConnectionPool implements ResourcePool, ConnectionLeakListener,
         }
 
         if (!state.isBusy()) {
-            throw new IllegalStateException("state.isBusy() : false");
+            //throw new IllegalStateException("state.isBusy() : false");
+            MultiException noBusyException = new MultiException(state.getBusyStackException());
+            noBusyException.addError(new IllegalStateException("state.isBusy() : false"));
+            _logger.log(Level.WARNING, "state.isBusy already set to false for " + h.getName() + "#" + h.getId(), noBusyException);
         }
 
         setResourceStateToFree(h);  // mark as not busy
