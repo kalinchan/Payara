@@ -162,17 +162,17 @@ public class SetHealthCheckConfiguration implements AdminCommand {
                 @Override
                 public Object run(HealthCheckServiceConfiguration configProxy)
                         throws PropertyVetoException, TransactionFailure {
-                    configProxy.enabled(enabled.toString());
-                    configProxy.setHistoricalTraceStoreSize(String.valueOf(historicalTraceStoreSize));
-                    if (historicalTraceEnabled != null) {
-                        configProxy.setHistoricalTraceEnabled(historicalTraceEnabled.toString());
-                    }
-                    if (historicalTraceStoreTimeout != null) {
-                        configProxy.setHistoricalTraceStoreTimeout(historicalTraceStoreTimeout.toString());
-                    }
-                    report.setActionExitCode(ActionReport.ExitCode.SUCCESS);
-                    return configProxy;
-                }
+                                configProxy.enabled(enabled.toString());
+                                configProxy.setHistoricalTraceStoreSize(String.valueOf(historicalTraceStoreSize));
+                                if (historicalTraceEnabled != null) {
+                                    configProxy.setHistoricalTraceEnabled(historicalTraceEnabled.toString());
+                                }
+                                if (historicalTraceStoreTimeout != null) {
+                                    configProxy.setHistoricalTraceStoreTimeout(historicalTraceStoreTimeout.toString());
+                                }
+                                report.setActionExitCode(ActionReport.ExitCode.SUCCESS);
+                                return configProxy;
+                            }
             }, config);
         } catch (TransactionFailure ex) {
             logger.log(Level.WARNING, "Exception during command ", ex);
