@@ -40,13 +40,16 @@
 package fish.payara.microprofile.openapi.impl.processor;
 
 import static java.util.logging.Level.FINE;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Level.SEVERE;
+import static java.util.logging.Level.WARNING;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -99,6 +102,7 @@ import org.eclipse.microprofile.openapi.models.Reference;
 import org.eclipse.microprofile.openapi.models.media.MediaType;
 import org.eclipse.microprofile.openapi.models.media.Schema.SchemaType;
 import org.eclipse.microprofile.openapi.models.parameters.Parameter.In;
+import org.eclipse.microprofile.openapi.models.parameters.Parameter.Style;
 
 import fish.payara.microprofile.openapi.api.processor.OASProcessor;
 import fish.payara.microprofile.openapi.api.visitor.ApiContext;
@@ -121,12 +125,10 @@ import fish.payara.microprofile.openapi.impl.model.security.SecurityRequirementI
 import fish.payara.microprofile.openapi.impl.model.security.SecuritySchemeImpl;
 import fish.payara.microprofile.openapi.impl.model.servers.ServerImpl;
 import fish.payara.microprofile.openapi.impl.model.tags.TagImpl;
+import fish.payara.microprofile.openapi.impl.model.util.AnnotationInfo;
 import fish.payara.microprofile.openapi.impl.model.util.ModelUtils;
 import fish.payara.microprofile.openapi.impl.visitor.OpenApiContext;
 import fish.payara.microprofile.openapi.impl.visitor.OpenApiWalker;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.ParameterizedType;
-import org.eclipse.microprofile.openapi.models.parameters.Parameter.Style;
 
 /**
  * A processor to parse the application for annotations, to add to the OpenAPI
@@ -146,6 +148,26 @@ public class ApplicationProcessor implements OASProcessor, ApiVisitor {
      */
     public ApplicationProcessor(Set<Class<?>> appClasses) {
         this.classes = appClasses;
+        this.classes.removeIf(cls -> cls.isInterface() || Modifier.isAbstract(cls.getModifiers()));
+        if (classes != null) {
+            addInnerClasses();
+        }
+    }
+
+    private void addInnerClasses() {
+        List<Class<?>> topLevelClasses = new ArrayList<>(classes);
+        for (Class<?> topLevelClass : topLevelClasses) {
+            addInnerClasses(topLevelClass);
+        }
+    }
+
+    private void addInnerClasses(Class<?> topLevelClass) {
+        if (topLevelClass != null) {
+            classes.addAll(Arrays.asList(topLevelClass.getDeclaredClasses()));
+            if (topLevelClass.getSuperclass() != Object.class) {
+                addInnerClasses(topLevelClass.getSuperclass());
+            }
+        }
     }
 
     @Override
@@ -675,17 +697,15 @@ public class ApplicationProcessor implements OASProcessor, ApiVisitor {
 
     @Override
     public void visitRequestBody(RequestBody requestBody, AnnotatedElement element, ApiContext context) {
-        if (element instanceof Method) {
-            if (context.getWorkingOperation().getRequestBody() != null) {
-                RequestBodyImpl.merge(requestBody, context.getWorkingOperation().getRequestBody(), true,
+        if (element instanceof Method || element instanceof java.lang.reflect.Parameter) {
+            org.eclipse.microprofile.openapi.models.parameters.RequestBody currentRequestBody = context
+                    .getWorkingOperation().getRequestBody();
+            if (currentRequestBody != null || element instanceof java.lang.reflect.Parameter) {
+                RequestBodyImpl.merge(requestBody, currentRequestBody, true,
                         context.getApi().getComponents().getSchemas());
             }
-        }
-        if (element instanceof java.lang.reflect.Parameter) {
-            if (context.getWorkingOperation().getRequestBody() != null) {
-                RequestBodyImpl.merge(requestBody, context.getWorkingOperation().getRequestBody(), true,
-                        context.getApi().getComponents().getSchemas());
-            }
+        } else {
+            System.out.println("Ignored");
         }
     }
 
@@ -1048,7 +1068,7 @@ public class ApplicationProcessor implements OASProcessor, ApiVisitor {
         referee.setRef(schema == null || schema.name().isEmpty() ? referenceClass.getSimpleName() : schema.name());
 
         // Create the schema
-        visitSchema(schema, referenceClass, context);
+        visitSchema(AnnotationInfo.valueOf(referenceClass).getAnnotation(Schema.class), referenceClass, context);
 
         return true;
     }
