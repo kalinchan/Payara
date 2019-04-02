@@ -41,15 +41,42 @@
 
 package com.sun.enterprise.admin.servermgmt.cli;
 
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.KEYTOOLOPTIONS;
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.K_ADMIN_CERT_DN;
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.K_ADMIN_PORT;
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.K_INITIAL_ADMIN_USER_GROUPS;
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.K_INSTANCE_CERT_DN;
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.K_PORTBASE;
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.K_SECURE_ADMIN_IDENTIFIER;
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.K_TEMPLATE_NAME;
-import static com.sun.enterprise.admin.servermgmt.DomainConfig.K_VALIDATE_PORTS;
+import com.sun.appserv.management.client.prefs.LoginInfo;
+import com.sun.appserv.management.client.prefs.LoginInfoStore;
+import com.sun.appserv.management.client.prefs.LoginInfoStoreFactory;
+import com.sun.appserv.server.util.Version;
+import com.sun.enterprise.admin.cli.CLICommand;
+import com.sun.enterprise.admin.cli.CLIConstants;
+import com.sun.enterprise.admin.servermgmt.DomainConfig;
+import com.sun.enterprise.admin.servermgmt.DomainException;
+import com.sun.enterprise.admin.servermgmt.DomainsManager;
+import com.sun.enterprise.admin.servermgmt.KeystoreManager;
+import com.sun.enterprise.admin.servermgmt.RepositoryManager;
+import com.sun.enterprise.admin.servermgmt.domain.DomainBuilder;
+import com.sun.enterprise.admin.servermgmt.pe.PEDomainsManager;
+import com.sun.enterprise.admin.util.CommandModelData.ParamModelData;
+import com.sun.enterprise.universal.i18n.LocalStringsImpl;
+import com.sun.enterprise.util.SystemPropertyConstants;
+import com.sun.enterprise.util.io.FileUtils;
+import com.sun.enterprise.util.net.NetUtils;
+import jline.console.ConsoleReader;
+import org.glassfish.api.Param;
+import org.glassfish.api.admin.CommandException;
+import org.glassfish.api.admin.CommandModel.ParamModel;
+import org.glassfish.api.admin.CommandValidationException;
+import org.glassfish.hk2.api.PerLookup;
+import org.glassfish.security.common.FileRealmHelper;
+import org.jvnet.hk2.annotations.Service;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Level;
+
 import static com.sun.enterprise.config.util.PortConstants.DEFAULT_INSTANCE_PORT;
 import static com.sun.enterprise.config.util.PortConstants.PORTBASE_ADMINPORT_SUFFIX;
 import static com.sun.enterprise.config.util.PortConstants.PORTBASE_DEBUG_SUFFIX;
@@ -62,56 +89,6 @@ import static com.sun.enterprise.config.util.PortConstants.PORTBASE_JMS_SUFFIX;
 import static com.sun.enterprise.config.util.PortConstants.PORTBASE_JMX_SUFFIX;
 import static com.sun.enterprise.config.util.PortConstants.PORTBASE_OSGI_SUFFIX;
 import static com.sun.enterprise.config.util.PortConstants.PORT_MAX_VAL;
-import static com.sun.enterprise.util.SystemPropertyConstants.DEFAULT_ADMIN_PASSWORD;
-import static com.sun.enterprise.util.SystemPropertyConstants.DEFAULT_ADMIN_USER;
-import static com.sun.enterprise.util.net.NetUtils.checkPort;
-import static com.sun.enterprise.util.net.NetUtils.isPortValid;
-import static java.util.logging.Level.FINER;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Level;
-
-import jline.console.ConsoleReader;
-import org.glassfish.api.Param;
-import org.glassfish.api.admin.CommandException;
-import org.glassfish.api.admin.CommandModel.ParamModel;
-import org.glassfish.api.admin.CommandValidationException;
-import org.glassfish.hk2.api.PerLookup;
-import org.glassfish.security.common.FileRealmStorageManager;
-import org.jvnet.hk2.annotations.Service;
-
-import com.sun.appserv.management.client.prefs.LoginInfo;
-import com.sun.appserv.management.client.prefs.LoginInfoStore;
-import com.sun.appserv.management.client.prefs.LoginInfoStoreFactory;
-import com.sun.appserv.server.util.Version;
-import com.sun.enterprise.admin.cli.CLICommand;
-import com.sun.enterprise.admin.cli.CLIConstants;
-import com.sun.enterprise.admin.servermgmt.*;
-import com.sun.enterprise.admin.servermgmt.domain.DomainBuilder;
-import com.sun.enterprise.admin.servermgmt.pe.PEDomainsManager;
-import com.sun.enterprise.admin.util.CommandModelData.ParamModelData;
-import static com.sun.enterprise.config.util.PortConstants.*;
-import com.sun.enterprise.universal.i18n.LocalStringsImpl;
-import com.sun.enterprise.util.SystemPropertyConstants;
-import com.sun.enterprise.util.io.FileUtils;
-import com.sun.enterprise.util.net.NetUtils;
-import java.io.Console;
-import java.io.File;
-import java.util.*;
-import java.util.logging.Level;
-import org.glassfish.api.Param;
-import org.glassfish.api.admin.CommandException;
-import org.glassfish.api.admin.CommandModel.ParamModel;
-import org.glassfish.api.admin.CommandValidationException;
-import org.glassfish.hk2.api.PerLookup;
-import org.glassfish.security.common.FileRealmHelper;
-import org.jvnet.hk2.annotations.Service;
 
 /**
  * This is a local command that creates a domain.
@@ -229,8 +206,7 @@ public final class CreateDomainCommand extends CLICommand {
                     if (ok(val)) {
                         programOpts.setUser(val);
                         if (adminPassword == null) {
-                            char[] pwdArr = getAdminPassword();
-                            adminPassword = pwdArr != null ? new String(pwdArr) : null;
+                            adminPassword = getAdminPassword();
                         }
                     }
                 } else {

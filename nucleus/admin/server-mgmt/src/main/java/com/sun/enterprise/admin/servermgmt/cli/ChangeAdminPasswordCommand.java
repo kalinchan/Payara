@@ -40,10 +40,17 @@
 
 package com.sun.enterprise.admin.servermgmt.cli;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.util.logging.Level;
-
+import com.sun.enterprise.admin.cli.ProgramOptions;
+import com.sun.enterprise.admin.launcher.GFLauncher;
+import com.sun.enterprise.admin.launcher.GFLauncherException;
+import com.sun.enterprise.admin.launcher.GFLauncherFactory;
+import com.sun.enterprise.admin.launcher.GFLauncherInfo;
+import com.sun.enterprise.admin.remote.RemoteRestAdminCommand;
+import com.sun.enterprise.config.serverbeans.SecureAdmin;
+import com.sun.enterprise.universal.i18n.LocalStringsImpl;
+import com.sun.enterprise.universal.xml.MiniXmlParserException;
+import com.sun.enterprise.util.SystemPropertyConstants;
+import com.sun.enterprise.util.net.NetUtils;
 import jline.console.ConsoleReader;
 import org.glassfish.api.I18n;
 import org.glassfish.api.Param;
@@ -52,29 +59,12 @@ import org.glassfish.api.admin.CommandValidationException;
 import org.glassfish.api.admin.ParameterMap;
 import org.glassfish.api.admin.RuntimeType;
 import org.glassfish.hk2.api.PerLookup;
-import org.glassfish.security.common.FileRealmStorageManager;
+import org.glassfish.security.common.FileRealmHelper;
 import org.jvnet.hk2.annotations.Service;
 
-import com.sun.enterprise.admin.cli.ProgramOptions;
-import com.sun.enterprise.admin.launcher.GFLauncher;
-import com.sun.enterprise.admin.launcher.GFLauncherException;
-import com.sun.enterprise.admin.launcher.GFLauncherFactory;
-import com.sun.enterprise.admin.launcher.GFLauncherInfo;
-import com.sun.enterprise.admin.remote.RemoteRestAdminCommand;
-import java.io.Console;
-import org.jvnet.hk2.annotations.*;
-import org.glassfish.api.admin.*;
-import com.sun.enterprise.config.serverbeans.SecureAdmin;
-import com.sun.enterprise.util.SystemPropertyConstants;
-import com.sun.enterprise.universal.i18n.LocalStringsImpl;
-import com.sun.enterprise.universal.xml.MiniXmlParserException;
-import com.sun.enterprise.util.net.NetUtils;
 import java.io.IOException;
 import java.net.ConnectException;
-import org.glassfish.api.I18n;
-import org.glassfish.api.Param;
-import org.glassfish.hk2.api.PerLookup;
-import org.glassfish.security.common.FileRealmHelper;
+import java.util.logging.Level;
 
 /**
  * The change-admin-password command.
