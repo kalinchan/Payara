@@ -205,7 +205,7 @@ public class RemoteCLICommand extends CLICommand {
                             return false;
                         }
                     }
-                    char[] password;
+                    String password;
                     String puser = ok(user) ? user : programOpts.getUser();
                     if (ok(puser)) {
                         password = readPassword(strings.get("AdminUserPasswordPrompt", puser));
