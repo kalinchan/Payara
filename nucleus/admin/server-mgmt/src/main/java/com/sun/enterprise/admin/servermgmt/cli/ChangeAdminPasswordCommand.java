@@ -46,25 +46,20 @@ import com.sun.enterprise.admin.launcher.GFLauncherException;
 import com.sun.enterprise.admin.launcher.GFLauncherFactory;
 import com.sun.enterprise.admin.launcher.GFLauncherInfo;
 import com.sun.enterprise.admin.remote.RemoteRestAdminCommand;
+import java.io.Console;
+import org.jvnet.hk2.annotations.*;
+import org.glassfish.api.admin.*;
 import com.sun.enterprise.config.serverbeans.SecureAdmin;
+import com.sun.enterprise.util.SystemPropertyConstants;
 import com.sun.enterprise.universal.i18n.LocalStringsImpl;
 import com.sun.enterprise.universal.xml.MiniXmlParserException;
-import com.sun.enterprise.util.SystemPropertyConstants;
 import com.sun.enterprise.util.net.NetUtils;
-import jline.console.ConsoleReader;
-import org.glassfish.api.I18n;
-import org.glassfish.api.Param;
-import org.glassfish.api.admin.CommandException;
-import org.glassfish.api.admin.CommandValidationException;
-import org.glassfish.api.admin.ParameterMap;
-import org.glassfish.api.admin.RuntimeType;
-import org.glassfish.hk2.api.PerLookup;
-import org.glassfish.security.common.FileRealmHelper;
-import org.jvnet.hk2.annotations.Service;
-
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.logging.Level;
+import org.glassfish.api.I18n;
+import org.glassfish.api.Param;
+import org.glassfish.hk2.api.PerLookup;
+import org.glassfish.security.common.FileRealmHelper;
 
 /**
  * The change-admin-password command.
@@ -121,26 +116,17 @@ public class ChangeAdminPasswordCommand extends LocalDomainCommand {
          */
         if (programOpts.getUser() == null) {
             // prompt for it (if interactive)
-            try (ConsoleReader cons = new ConsoleReader(System.in, System.out, null)) {
-                if (cons != null && programOpts.isInteractive()) {
-                    cons.setPrompt(STRINGS.get("AdminUserDefaultPrompt",
-                            SystemPropertyConstants.DEFAULT_ADMIN_USER));
-
-                    try {
-                        String val = cons.readLine();
-                        if (ok(val)) {
-                            programOpts.setUser(val);
-                        } else {
-                            programOpts.setUser(SystemPropertyConstants.DEFAULT_ADMIN_USER);
-                        }
-                    } catch (IOException ioe) {
-                        logger.log(Level.WARNING, "Error reading input", ioe);
-                    }
-                } else {
-                    throw new CommandValidationException(STRINGS.get("AdminUserRequired"));
-                }
-            } catch (IOException ioe) {
-                logger.log(Level.WARNING, "Error instantiating console", ioe);
+            Console cons = System.console();
+            if (cons != null && programOpts.isInteractive()) {
+                cons.printf("%s", STRINGS.get("AdminUserDefaultPrompt", SystemPropertyConstants.DEFAULT_ADMIN_USER));
+                String val = cons.readLine();
+                if (ok(val))
+                    programOpts.setUser(val);
+                else
+                    programOpts.setUser(
+                                    SystemPropertyConstants.DEFAULT_ADMIN_USER);
+            } else {
+                throw new CommandValidationException(STRINGS.get("AdminUserRequired"));
             }
         }
         

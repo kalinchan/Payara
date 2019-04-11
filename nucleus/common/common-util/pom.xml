@@ -119,10 +119,5 @@
             <artifactId>org.osgi.enterprise</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-            <optional>true</optional>
-        </dependency>
     </dependencies>
 </project>
