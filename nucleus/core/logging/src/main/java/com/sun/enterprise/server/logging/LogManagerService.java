@@ -231,7 +231,7 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
     private String excludeFields;
 
     private boolean multiLineMode = false;
-    
+
     private  GFFileHandler gfFileHandler = null;
     
     private  PayaraNotificationFileHandler pyFileHandler = null;
@@ -373,13 +373,14 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
 
         // logging.properties massaging.
         final LogManager logMgr = LogManager.getLogManager();
-        File loggingPropertiesFile = null;
+        File logging = null;
 
         // reset settings
         try {
 
-            loggingPropertiesFile = getLoggingFile();
-            System.setProperty("java.util.logging.config.file", loggingPropertiesFile.getAbsolutePath());
+
+            logging = getLoggingFile();
+            System.setProperty("java.util.logging.config.file", logging.getAbsolutePath());
             
             String rootFolder = env.getProps().get(com.sun.enterprise.util.SystemPropertyConstants.INSTALL_ROOT_PROPERTY);
             String templateDir = rootFolder + File.separator + "lib" + File.separator + "templates";
@@ -391,10 +392,10 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
             System.out.println("#!## LogManagerService.postConstruct : src=" +src);
             System.out.println("#!## LogManagerService.postConstruct : dest=" +dest);
 
-            if (!loggingPropertiesFile.exists()) {
-                LOGGER.log(Level.FINE, "{0} not found, creating new file from template.", loggingPropertiesFile.getAbsolutePath());
+            if (!logging.exists()) {
+                LOGGER.log(Level.FINE, "{0} not found, creating new file from template.", logging.getAbsolutePath());
                 FileUtils.copy(src, dest);
-                loggingPropertiesFile = new File(env.getConfigDirPath(), ServerEnvironmentImpl.kLoggingPropertiesFileName);
+                logging = new File(env.getConfigDirPath(), ServerEnvironmentImpl.kLoggingPropertiesFileName);
             }
             
             logMgr.readConfiguration();
@@ -466,34 +467,10 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
                 }
             }
         }
-             
-        // finally listen to changes to the loggingPropertiesFile.properties file
-        listenToChangesOnloggingPropsFile(loggingPropertiesFile, logMgr);
-   
-        // Log the messages that were generated very early before this Service
-        // started.  Just use our own logger...
-        List<EarlyLogger.LevelAndMessage> catchUp = EarlyLogger.getEarlyMessages();
-              
-        if (!catchUp.isEmpty()) {
-            for (EarlyLogger.LevelAndMessage levelAndMessage : catchUp) {
-                LOGGER.log(levelAndMessage.getLevel(), levelAndMessage.getMessage());
-            }
-            catchUp.clear();
-        }
-
-        ArrayBlockingQueue<LogRecord> catchEarlyMessage = EarlyLogHandler.earlyMessages;
-
-        while (!catchEarlyMessage.isEmpty()) {
-            LogRecord logRecord = catchEarlyMessage.poll();
-            if (logRecord != null) {
-                LOGGER.log(logRecord);
-            }
-        }
-    }
-  
-    public void listenToChangesOnloggingPropsFile(File loggingPropertiesFile, final LogManager logMgr) {
-        if (loggingPropertiesFile != null) {
-            fileMonitoring.monitors(loggingPropertiesFile, new FileMonitoring.FileChangeListener() {
+                
+        // finally listen to changes to the logging.properties file
+        if (logging != null) {
+            fileMonitoring.monitors(logging, new FileMonitoring.FileChangeListener() {
                 @Override
                 public void changed(File changedFile) {
                     synchronized (gfHandlers) {
@@ -763,7 +740,7 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
                                                 }
                                             }
                                         } else {
-                                            LOGGER.log(Level.INFO, "Payara Notification Service isn't using a separate Log File ");
+                                            LOGGER.log(Level.INFO, PAYARA_NOTIFICATION_NOT_USING_SEPARATE_LOG);
                                         }
                                     }
                                 } else if (a.equals(PAYARA_NOTIFICATION_LOGTOFILE_PROPERTY)) {
@@ -779,7 +756,7 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
                                                 }
                                             }
                                         } else {
-                                            LOGGER.log(Level.INFO, "Payara Notification Service isn't using a separate Log File ");
+                                            LOGGER.log(Level.INFO, PAYARA_NOTIFICATION_NOT_USING_SEPARATE_LOG);
                                         }
                                     }
                                 } else if (a.equals(PAYARA_NOTIFICATION_LOG_ROTATIONTIMELIMITINMINUTES_PROPERTY)) {
@@ -795,7 +772,7 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
                                                 }
                                             }
                                         } else {
-                                            LOGGER.log(Level.INFO, "Payara Notification Service isn't using a separate Log File ");
+                                            LOGGER.log(Level.INFO, PAYARA_NOTIFICATION_NOT_USING_SEPARATE_LOG);
                                         }
                                     }
                                 } else if (a.equals(PAYARA_NOTIFICATION_LOG_ROTATIONLIMITINBYTES_PROPERTY)) {
@@ -811,7 +788,7 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
                                                 }
                                             }                                           
                                         } else {
-                                            LOGGER.log(Level.INFO, "Payara Notification Service isn't using a separate Log File ");
+                                            LOGGER.log(Level.INFO, PAYARA_NOTIFICATION_NOT_USING_SEPARATE_LOG);
                                         }
                                     }
                                 } else if (a.equals(PAYARA_NOTIFICATION_LOG_ROTATIONONDATECHANGE_PROPERTY)) {
@@ -843,7 +820,7 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
                                                 }
                                             }                                           
                                         } else {
-                                            LOGGER.log(Level.INFO, "Payara Notification Service isn't using a separate Log File ");
+                                            LOGGER.log(Level.INFO, PAYARA_NOTIFICATION_NOT_USING_SEPARATE_LOG);
                                         }
                                     }
                                 } else if (a.equals(PAYARA_NOTIFICATION_LOG_COMPRESS_ON_ROTATION_PROPERTY)) {
@@ -859,7 +836,7 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
                                                 }
                                             }                                          
                                         } else {
-                                            LOGGER.log(Level.INFO, "Payara Notification Service isn't using a separate Log File ");
+                                            LOGGER.log(Level.INFO, PAYARA_NOTIFICATION_NOT_USING_SEPARATE_LOG);
                                         }
                                     }
                                 }
@@ -878,6 +855,25 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
                     LOGGER.log(Level.WARNING, LogFacade.CONF_FILE_DELETED, deletedFile.getAbsolutePath());
                 }
             });
+        }
+        // Log the messages that were generated very early before this Service
+        // started.  Just use our own logger...
+        List<EarlyLogger.LevelAndMessage> catchUp = EarlyLogger.getEarlyMessages();
+
+        if (!catchUp.isEmpty()) {
+            for (EarlyLogger.LevelAndMessage levelAndMessage : catchUp) {
+                LOGGER.log(levelAndMessage.getLevel(), levelAndMessage.getMessage());
+            }
+            catchUp.clear();
+        }
+
+        ArrayBlockingQueue<LogRecord> catchEarlyMessage = EarlyLogHandler.earlyMessages;
+
+        while (!catchEarlyMessage.isEmpty()) {
+            LogRecord logRecord = catchEarlyMessage.poll();
+            if (logRecord != null) {
+                LOGGER.log(logRecord);
+            }
         }
     }
     
@@ -987,7 +983,6 @@ public class LogManagerService implements PostConstruct, PreDestroy, org.glassfi
         fileHandlerFormatterDetail = props.get(FILEHANDLER_FORMATTER_PROPERTY);
         logFormatDateFormatDetail = props.get(LOGFORMAT_DATEFORMAT_PROPERTY);
         compressOnRotationDetail = props.get(COMPRESS_ON_ROTATION_PROPERTY);
-        logStandardStreamsDetail = props.get(LOG_STANDARD_STREAMS_PROPERTY);
 
         //Payara Notification Logging
         payaraNotificationLogFileDetail = props.get(PAYARA_NOTIFICATION_LOG_FILE_PROPERTY);

@@ -61,6 +61,7 @@ public class GFFilehandlerTest {
     @BeforeClass
     public static void initialize() {
         gfFileHandler = new GFFileHandler();
+        gfFileHandler.initializePump();
         origOut = System.out;
         origErr = System.err;
     }

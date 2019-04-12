@@ -147,16 +147,16 @@ PostConstruct, PreDestroy, LogEventBroadcaster, LoggingRuntime {
     private String fileHandlerFormatter = "";
     private String currentFileHandlerFormatter = "";
     private boolean logStandardStreams;
-    
-    private final PrintStream oStdOutBackup = System.out;
-    private final PrintStream oStdErrBackup = System.err;
+
+    private PrintStream oStdOutBackup = System.out;
+    private PrintStream oStdErrBackup = System.err;
     private LoggingOutputStream stdoutOutputStream=null;
     private LoggingOutputStream stderrOutputStream=null;
 
     // Initially the LogRotation will be off until the domain.xml value is read.
     private int limitForFileRotation = 0;
 
-    private BlockingQueue<LogRecord> pendingRecords = new ArrayBlockingQueue<LogRecord>(5000);
+    private BlockingQueue<LogRecord> pendingRecords = new ArrayBlockingQueue<>(5000);
 
     // Rotation can be done in 3 ways
     // 1. Based on the Size: Rotate when some Threshold number of bytes are 
@@ -330,7 +330,7 @@ PostConstruct, PreDestroy, LogEventBroadcaster, LoggingRuntime {
         if (propertyValue != null) {
             compressionOnRotation = Boolean.parseBoolean(propertyValue);
         }
-   
+
         propertyValue = manager.getProperty(className + ".logStandardStreams");
         if (propertyValue != null) {
             logStandardStreams = Boolean.parseBoolean(propertyValue);
@@ -1089,7 +1089,7 @@ PostConstruct, PreDestroy, LogEventBroadcaster, LoggingRuntime {
 
         return status;
     }
-    
+
     private void logStandardStreams() {
         // redirect stderr and stdout, a better way to do this
         //http://blogs.sun.com/nickstephen/entry/java_redirecting_system_out_and

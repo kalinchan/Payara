@@ -67,7 +67,7 @@ import org.glassfish.config.support.CommandTarget;
 import org.glassfish.config.support.TargetType;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.internal.config.UnprocessedConfigListener;
-import org.jvnet.hk2.annotations.Service;;
+import org.jvnet.hk2.annotations.Service;
 
 /**
  * Set Log Attributes Command
