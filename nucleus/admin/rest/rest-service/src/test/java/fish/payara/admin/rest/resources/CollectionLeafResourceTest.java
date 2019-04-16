@@ -55,7 +55,7 @@ public class CollectionLeafResourceTest {
 
     class Wrapper extends CollectionLeafResource {
         public Map<String, String> getProcessedData(Map<String, String> data) {
-            return processData(data, true);
+            return processData(data);
         }
     };
     
