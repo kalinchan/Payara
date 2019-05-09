@@ -179,7 +179,6 @@
         <module>environment-warning</module>
         <module>payara-rest-endpoints</module>
         <module>rest-monitoring</module>
-        <module>cdi-auth-roles</module>
     </modules>
 
     <profiles>
@@ -191,6 +190,7 @@
             <modules>
                 <module>microprofile-package</module>
                 <module>yubikey-authentication</module>
+		<module>cdi-auth-roles</module>
             </modules>
         </profile>
     </profiles>
