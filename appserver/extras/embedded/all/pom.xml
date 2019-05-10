@@ -430,14 +430,7 @@
             <type>zip</type>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.main.packager</groupId>
-            <artifactId>cdi-auth-roles</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <optional>true</optional>
-        </dependency>
-        <!-- Micro Service -->
+       <!-- Micro Service -->
         <dependency>
             <groupId>org.glassfish.main.packager</groupId>
             <artifactId>payara-micro</artifactId>
