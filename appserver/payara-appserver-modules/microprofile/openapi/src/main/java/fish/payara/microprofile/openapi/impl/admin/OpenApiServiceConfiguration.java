@@ -60,6 +60,16 @@ public interface OpenApiServiceConfiguration extends ConfigBeanProxy, ConfigExte
     void setEnabled(String value) throws PropertyVetoException;
 
     /**
+     * Defines if CORS headers are set on the OpenApi response.
+     *
+     * @return whether to set CORS headers or not
+     */
+    @Attribute(defaultValue = "false", dataType = Boolean.class)
+    String getCorsHeaders();
+
+    void setCorsHeaders(String value) throws PropertyVetoException;
+
+    /**
      * String value defines the attached virtual servers.
      *
      * @return
@@ -68,5 +78,15 @@ public interface OpenApiServiceConfiguration extends ConfigBeanProxy, ConfigExte
     String getVirtualServers();
 
     void setVirtualServers(String value) throws PropertyVetoException;
+
+    /**
+     * Boolean value determining if the security is enabled or not.
+     *
+     * @return
+     */
+    @Attribute(defaultValue = "false", dataType = Boolean.class)
+    String getSecurityEnabled();
+
+    void setSecurityEnabled(String value) throws PropertyVetoException;
 
 }
