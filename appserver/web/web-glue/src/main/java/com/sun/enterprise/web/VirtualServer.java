@@ -68,7 +68,6 @@ import com.sun.web.security.RealmAdapter;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import static com.sun.enterprise.web.Constants.DEFAULT_WEB_MODULE_NAME;
-import static com.sun.enterprise.web.Constants.DEFAULT_WEB_MODULE_REALM;
 import static org.glassfish.api.web.Constants.ADMIN_VS;
 import static org.glassfish.web.LogFacade.IGNORE_INVALID_REALM;
 import static org.glassfish.web.LogFacade.INVALID_AUTH_REALM;
@@ -665,7 +664,8 @@ public class VirtualServer extends StandardHost
             wmInfo = new WebModuleConfig();
             wbd.setModuleID(Constants.DEFAULT_WEB_MODULE_NAME);
             wbd.setContextRoot("");
-            wbd.getLoginConfiguration().setRealmName(DEFAULT_WEB_MODULE_REALM);
+            SecurityService securityService = Globals.get(SecurityService.class);
+            wbd.getLoginConfiguration().setRealmName(securityService.getDefaultRealm());
             wmInfo.setLocation(new File(docroot));
             wmInfo.setDescriptor(wbd);
             wmInfo.setParentLoader(
