@@ -125,6 +125,10 @@ public class OpenApiService implements PostConstruct, PreDestroy, EventListener,
     public boolean isEnabled() {
         return Boolean.parseBoolean(config.getEnabled());
     }
+    
+    public boolean isSecurityEnabled() {
+        return Boolean.parseBoolean(config.getSecurityEnabled());
+    }
 
     /**
      * Listen for OpenAPI config changes.
