@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-// Portions Copyright [2016-2018] [Payara Foundation and/or its affiliates]
+// Portions Copyright [2016-2019] [Payara Foundation and/or its affiliates]
 package com.sun.web.security;
 
 import static com.sun.enterprise.security.auth.digest.api.Constants.A1;
@@ -618,7 +618,7 @@ public class RealmAdapter extends RealmBase implements RealmInitializer, PostCon
         if (authenticate(null, null, certs)) {
             SecurityContext secCtx = SecurityContext.getCurrent();
             assert (secCtx != null); // or auth should've failed
-            return new WebPrincipal(certs, secCtx);
+            return new WebPrincipal(certs, secCtx, true);
         } else {
             return null;
         }
@@ -648,32 +648,21 @@ public class RealmAdapter extends RealmBase implements RealmInitializer, PostCon
     protected boolean authenticate(String username, char[] password,
             X509Certificate[] certs) {
 
-        String realm_name = null;
         boolean success = false;
         try {
             if (certs != null) {
                 Subject subject = new Subject();
                 X509Certificate certificate = certs[0];
-                
-                
-                Principal x500principal = null;
-                Principal principal = certificate.getSubjectDN();
-                if (principal instanceof sun.security.x509.X500Name) {
-                    x500principal = ((sun.security.x509.X500Name) principal).asX500Principal();
-                } else {
-                    x500principal = certificate.getSubjectDN();
-                }
+
+                X500Principal x500principal = certificate.getSubjectX500Principal();
                 
                 subject.getPublicCredentials().add(x500principal);
                 // Put the certificate chain as an List in the subject, to be accessed by user's LoginModule.
                 final List<X509Certificate> certificateCred = Arrays.asList(certs);
                 subject.getPublicCredentials().add(certificateCred);
                 LoginContextDriver.doX500Login(subject, moduleID);
-                realm_name = CertificateRealm.AUTH_TYPE;
             } else {
-                realm_name = _realmName;
-
-                LoginContextDriver.login(username, password, realm_name);
+                LoginContextDriver.login(username, password, _realmName);
             }
             success = true;
         } catch (Exception le) {
