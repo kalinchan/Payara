@@ -71,8 +71,6 @@ import java.util.logging.Level;
 
 
 import org.jvnet.hk2.annotations.Service;
-import sun.security.pkcs.PKCS9Attribute;
-import sun.security.x509.X500Name;
 
 /**
  * Realm wrapper for supporting certificate authentication.
