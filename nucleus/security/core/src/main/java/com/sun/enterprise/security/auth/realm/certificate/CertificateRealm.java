@@ -71,8 +71,6 @@ import java.util.logging.Level;
 
 
 import org.jvnet.hk2.annotations.Service;
-import sun.security.pkcs.PKCS9Attribute;
-import sun.security.x509.X500Name;
 
 /**
  * Realm wrapper for supporting certificate authentication.
@@ -111,7 +109,7 @@ public final class CertificateRealm extends IASRealm
     public static final String AUTH_TYPE = "certificate";
     private LinkedList<String> defaultGroups = new LinkedList<>();
 
-    public static final Map<String, String> oidMap;
+    public static final Map<String, String> OID_MAP;
     static {
         Map<String, String> oidMapInitialiser = new HashMap<>();
         oidMapInitialiser.put(OIDs.UID, "UID");
@@ -132,7 +130,7 @@ public final class CertificateRealm extends IASRealm
         oidMapInitialiser.put(OIDs.INITIALS, "INITIALS");
         oidMapInitialiser.put(OIDs.GENERATION, "GENERATION");
         oidMapInitialiser.put(OIDs.DNQUALIFIER, "DNQUALIFIER");
-        oidMap = Collections.unmodifiableMap(oidMapInitialiser);
+        OID_MAP = Collections.unmodifiableMap(oidMapInitialiser);
     }
 
     // Optional link to a realm to verify group (possibly user, later)
@@ -251,7 +249,7 @@ public final class CertificateRealm extends IASRealm
         // It is important to use x500name.getName() in order to be
         // consistent with web containers view of the name - see bug
         // 4646134 for reasons why this matters.
-        String callerPrincipalName = callerPrincipal.getName(X500Principal.RFC2253, oidMap);
+        String callerPrincipalName = callerPrincipal.getName(X500Principal.RFC2253, OID_MAP);
 
         if (_logger.isLoggable(Level.FINEST)) {
             _logger.log(Level.FINEST, "Certificate realm setting up security context for: {0}", callerPrincipalName);

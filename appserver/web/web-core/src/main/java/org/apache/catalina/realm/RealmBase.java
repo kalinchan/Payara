@@ -481,7 +481,7 @@ public abstract class RealmBase
                 if (log.isLoggable(Level.FINE))
                     log.log(Level.FINE, "Checking validity for '" +
                             certs[i].getSubjectX500Principal()
-                                    .getName(X500Principal.RFC2253, CertificateRealm.oidMap) + "'");
+                                    .getName(X500Principal.RFC2253, CertificateRealm.OID_MAP) + "'");
                 try {
                     certs[i].checkValidity();
                 } catch (Exception e) {
@@ -493,7 +493,7 @@ public abstract class RealmBase
         }
 
         // Check the existence of the client Principal in our database
-        return (getPrincipal(certs[0].getSubjectX500Principal().getName(X500Principal.RFC2253, CertificateRealm.oidMap)));
+        return (getPrincipal(certs[0].getSubjectX500Principal().getName(X500Principal.RFC2253, CertificateRealm.OID_MAP)));
 
     }
 

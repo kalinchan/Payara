@@ -169,7 +169,7 @@ public class ClientCertificateLoginModule implements LoginModule {
 	    for(int i = 0; i < ks.size(); i++) {
 	        aliasString[i] = (String) aliases.nextElement();
 	        as[i] = ((X509Certificate)ks.getCertificate(aliasString[i])).getSubjectX500Principal().getName(
-	                X500Principal.RFC2253, CertificateRealm.oidMap);
+	                X500Principal.RFC2253, CertificateRealm.OID_MAP);
 	    }
 
 	    Callback[] callbacks = new Callback[1];

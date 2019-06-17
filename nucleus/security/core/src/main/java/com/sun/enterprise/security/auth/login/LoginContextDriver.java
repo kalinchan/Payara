@@ -501,7 +501,7 @@ public class LoginContextDriver  {
         String userName = "";
         try {
             final X500Principal finalX500Principal = x500Principal;
-            userName = x500Principal.getName(X500Principal.RFC2253, CertificateRealm.oidMap);
+            userName = x500Principal.getName(X500Principal.RFC2253, CertificateRealm.OID_MAP);
 
             AppservAccessController.doPrivileged(new PrivilegedAction(){
                 public java.lang.Object run(){
@@ -682,7 +682,7 @@ public class LoginContextDriver  {
        String realm_name = null;
        try{
             X500Principal x500Principal = (X500Principal) getPublicCredentials(s, X500Principal.class);
-            user = x500Principal.getName(X500Principal.RFC2253, CertificateRealm.oidMap);
+            user = x500Principal.getName(X500Principal.RFC2253, CertificateRealm.OID_MAP);
         
             // In the RI-inherited implementation this directly creates
             // some credentials and sets the security context. This means

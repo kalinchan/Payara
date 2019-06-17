@@ -94,9 +94,9 @@ public final class X509CertificateStringifier implements Stringifier
 		final String		NL	= "\n";
 		
 		buf.append( "Issuer: " + cert.getIssuerX500Principal().getName(
-				X500Principal.RFC2253, CertificateRealm.oidMap) + NL);
+				X500Principal.RFC2253, CertificateRealm.OID_MAP) + NL);
 		buf.append( "Issued to: " + cert.getSubjectX500Principal().getName(
-				X500Principal.RFC2253, CertificateRealm.oidMap)  + NL);
+				X500Principal.RFC2253, CertificateRealm.OID_MAP)  + NL);
 		buf.append( "Version: " + cert.getVersion()  + NL);
 		buf.append( "Not valid before: " + cert.getNotBefore()  + NL);
 		buf.append( "Not valid after: " + cert.getNotAfter()  + NL);

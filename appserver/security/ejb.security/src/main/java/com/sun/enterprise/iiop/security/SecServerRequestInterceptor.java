@@ -79,8 +79,6 @@ import java.util.Hashtable;
 import java.util.logging.Level;
 import static java.util.logging.Level.FINE;
 
-import sun.security.util.DerInputStream;
-import sun.security.util.DerValue;
 import javax.security.auth.x500.X500Principal;
 import sun.security.x509.X509CertImpl;
 
@@ -326,7 +324,7 @@ public class SecServerRequestInterceptor
                 certchain[i] = new X509CertImpl(derval[i]);
                 if(logger.isLoggable(Level.FINE)){
                 logger.log(Level.FINE,"    " + certchain[i].getSubjectX500Principal()
-                        .getName(X500Principal.RFC2253, CertificateRealm.oidMap));
+                        .getName(X500Principal.RFC2253, CertificateRealm.OID_MAP));
                 }
             }
             if(logger.isLoggable(Level.FINE)){
@@ -339,7 +337,7 @@ public class SecServerRequestInterceptor
              */
             X509CertificateCredential cred = 
                 new X509CertificateCredential(certchain, certchain[0].getSubjectX500Principal()
-                        .getName(X500Principal.RFC2253, CertificateRealm.oidMap), "default");
+                        .getName(X500Principal.RFC2253, CertificateRealm.OID_MAP), "default");
             if(logger.isLoggable(Level.FINE)){
                 logger.log(Level.FINE,"Adding X509CertificateCredential to subject's PublicCredentials");
             }
