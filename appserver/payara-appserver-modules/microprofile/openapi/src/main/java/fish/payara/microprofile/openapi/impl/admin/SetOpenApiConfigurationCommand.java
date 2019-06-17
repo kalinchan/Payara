@@ -87,9 +87,6 @@ public class SetOpenApiConfigurationCommand extends SetSecureMicroprofileConfigu
     @Param(name = "virtualServers", optional = true)
     private String virtualServers;
 
-    @Param(name = "corsHeaders", optional = true, defaultValue = "false")
-    private Boolean corsHeaders;
-
     @Param(optional = true, alias = "securityenabled")
     private Boolean securityEnabled;
 
@@ -127,9 +124,6 @@ public class SetOpenApiConfigurationCommand extends SetSecureMicroprofileConfigu
                 }
                 if (virtualServers != null) {
                     configProxy.setVirtualServers(virtualServers);
-                }
-                if (corsHeaders != null) {
-                    configProxy.setCorsHeaders(Boolean.toString(corsHeaders));
                 }
                 if (securityEnabled != null) {
                     configProxy.setSecurityEnabled(securityEnabled.toString());
