@@ -663,6 +663,7 @@ public class VirtualServer extends StandardHost
                 webArchivist.getDefaultWebXmlBundleDescriptor();
             wmInfo = new WebModuleConfig();
             wbd.setModuleID(Constants.DEFAULT_WEB_MODULE_NAME);
+            wbd.getModuleDescriptor().setArchiveUri(Constants.DEFAULT_WEB_MODULE_NAME);
             wbd.setContextRoot("");
             SecurityService securityService = Globals.get(SecurityService.class);
             wbd.getLoginConfiguration().setRealmName(securityService.getDefaultRealm());

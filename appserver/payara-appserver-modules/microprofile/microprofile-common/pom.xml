@@ -51,6 +51,16 @@
     <packaging>glassfish-jar</packaging>
     <dependencies>
         <dependency>
+            <groupId>org.glassfish.main.deployment</groupId>
+            <artifactId>dol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.main.connectors</groupId>
+            <artifactId>connectors-runtime</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.main.common</groupId>
             <artifactId>internal-api</artifactId>
             <version>${project.version}</version>
