@@ -39,7 +39,6 @@
  */
 package fish.payara.microprofile.healthcheck.servlet;
 
-import static fish.payara.microprofile.Constants.DEFAULT_GROUP_NAME;
 import fish.payara.microprofile.MicroProfileSecurityUtil;
 import fish.payara.microprofile.healthcheck.HealthCheckService;
 import fish.payara.microprofile.healthcheck.config.MetricsHealthCheckConfiguration;
@@ -100,9 +99,10 @@ public class HealthCheckServletContainerInitializer implements ServletContainerI
             ServletRegistration.Dynamic reg = ctx.addServlet("microprofile-healthcheck-servlet", HealthCheckServlet.class);
             reg.addMapping("/" + configuration.getEndpoint());
             if (Boolean.parseBoolean(configuration.getSecurityEnabled())) {
-                MicroProfileSecurityUtil.setGroupRoleMapping(DEFAULT_GROUP_NAME, DEFAULT_GROUP_NAME);
-                reg.setServletSecurity(new ServletSecurityElement(new HttpConstraintElement(NONE, DEFAULT_GROUP_NAME)));
-                ctx.declareRoles(DEFAULT_GROUP_NAME);
+                String[] roles = configuration.getRoles().split(",");
+                MicroProfileSecurityUtil.setGroupRoleMapping(roles, roles);
+                reg.setServletSecurity(new ServletSecurityElement(new HttpConstraintElement(NONE, roles)));
+                ctx.declareRoles(roles);
             }
         }
         

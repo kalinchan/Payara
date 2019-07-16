@@ -65,6 +65,12 @@ public abstract class SetSecureMicroprofileConfigurationCommand implements Admin
     @Inject
     private SecurityService securityService;
 
+    @Param(optional = true, defaultValue = DEFAULT_GROUP_NAME)
+    protected String roles;
+
+    @Param(optional = true, alias = "securityenabled")
+    protected Boolean securityEnabled;
+
     protected boolean defaultMicroprofileUserExists(ActionReport subActionReport, Subject subject) {
         CommandRunner.CommandInvocation invocation
                 = commandRunner.getCommandInvocation(
@@ -98,7 +104,7 @@ public abstract class SetSecureMicroprofileConfigurationCommand implements Admin
                 );
 
         ParameterMap parameters = new ParameterMap();
-        parameters.add("groups", DEFAULT_GROUP_NAME);
+        parameters.add("groups", roles.replace(',', ':'));
         parameters.add("userpassword", "mp");
         parameters.add("target", target);
         parameters.add("authrealmname", securityService.getDefaultRealm());

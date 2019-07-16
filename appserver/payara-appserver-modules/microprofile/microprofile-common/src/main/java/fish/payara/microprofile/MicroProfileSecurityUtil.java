@@ -49,14 +49,16 @@ import org.glassfish.security.common.Role;
 
 public class MicroProfileSecurityUtil {
 
-    public static void setGroupRoleMapping(String roleName, String groupName) {
+    public static void setGroupRoleMapping(String[] roleNames, String[] groupNames) {
         ComponentEnvManager envManager = ConnectorRuntime.getRuntime().getComponentEnvManager();
         WebBundleDescriptor descriptor = (WebBundleDescriptor) envManager.getCurrentJndiNameEnvironment();
         Application application = descriptor.getApplication();
         if (application != null) {
             SecurityRoleMapper roleMapper = application.getRoleMapper();
             if (roleMapper != null) {
-                roleMapper.assignRole(new Group(groupName), new Role(roleName), descriptor);
+                for (int i = 0; i < roleNames.length; i++) {
+                    roleMapper.assignRole(new Group(groupNames[i]), new Role(roleNames[i]), descriptor);
+                }
             }
         }
     }
