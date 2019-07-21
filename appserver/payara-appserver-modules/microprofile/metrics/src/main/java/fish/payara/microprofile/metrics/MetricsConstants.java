@@ -38,62 +38,20 @@
  *     holder.
  */
 
-package fish.payara.microprofile.metrics.cdi.interceptor;
+package fish.payara.microprofile.metrics;
 
-import fish.payara.microprofile.metrics.MetricsService;
-import fish.payara.microprofile.metrics.cdi.MetricsResolver;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Member;
-import javax.enterprise.inject.Intercepted;
-import javax.enterprise.inject.spi.Bean;
-import javax.inject.Inject;
-import javax.interceptor.AroundConstruct;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.AroundTimeout;
-import javax.interceptor.InvocationContext;
-import org.eclipse.microprofile.metrics.MetricRegistry;
-import org.glassfish.internal.api.Globals;
+import fish.payara.microprofile.Constants;
+import java.util.Arrays;
+import java.util.List;
+import static org.eclipse.microprofile.metrics.MetricRegistry.Type.APPLICATION;
+import static org.eclipse.microprofile.metrics.MetricRegistry.Type.BASE;
+import static org.eclipse.microprofile.metrics.MetricRegistry.Type.VENDOR;
 
-/* package-private */ abstract class AbstractInterceptor {
+public interface MetricsConstants extends Constants {
 
-    @Inject
-    protected MetricRegistry registry;
-
-    @Inject
-    protected MetricsResolver resolver;
-
-    @Inject
-    @Intercepted
-    protected Bean<?> bean;
-    
-    private MetricsService metricsService;
-
-    @AroundConstruct
-    private Object constructorInvocation(InvocationContext context) throws Exception {
-        return preInterceptor(context, context.getConstructor());
-    }
-
-    @AroundInvoke
-    private Object methodInvocation(InvocationContext context) throws Exception {
-        return preInterceptor(context, context.getMethod());
-    }
-
-    @AroundTimeout
-    private Object timeoutInvocation(InvocationContext context) throws Exception {
-        return preInterceptor(context, context.getMethod());
-    }
-
-    private <E extends Member & AnnotatedElement> Object preInterceptor(InvocationContext context, E element) throws Exception {
-        if(metricsService == null){
-            metricsService = Globals.getDefaultBaseServiceLocator().getService(MetricsService.class);
-        }
-        if (metricsService.isEnabled()) {
-            return applyInterceptor(context, element);
-        } else {
-            return context.proceed();
-        }
-    }
-
-    protected abstract <E extends Member & AnnotatedElement> Object applyInterceptor(InvocationContext context, E element) throws Exception;
+    // Registry Names
+    List<String> REGISTRY_NAMES = Arrays.asList(
+            BASE.getName(), VENDOR.getName(), APPLICATION.getName()
+    );
 
 }
