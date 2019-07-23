@@ -178,6 +178,6 @@
 	    <artifactId>microprofile-config-api</artifactId>
 	    <version>${microprofile-config.version}</version>
 	    <type>jar</type>
-	</dependency
+	</dependency>
     </dependencies>
 </project>
