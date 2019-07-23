@@ -168,11 +168,16 @@
             <artifactId>sjsxp</artifactId>
             <scope>test</scope>
         </dependency>
-            <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>javax.el-api</artifactId>
-                <scope>test</scope>
-            </dependency>
-
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+	<dependency>
+	    <groupId>org.eclipse.microprofile.config</groupId>
+	    <artifactId>microprofile-config-api</artifactId>
+	    <version>${microprofile-config.version}</version>
+	    <type>jar</type>
+	</dependency
     </dependencies>
 </project>
