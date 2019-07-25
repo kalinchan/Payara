@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-// Portions Copyright [2016-2019] [Payara Foundation and/or its affiliates]
+// Portions Copyright [2016-2017] [Payara Foundation and/or its affiliates]
 
 package org.glassfish.jdbc.deployer;
 
@@ -642,9 +642,7 @@ public class DataSourceDefinitionDeployer implements ResourceDeployer {
         @Override
         public String getSteadyPoolSize() {
             int minPoolSize = desc.getMinPoolSize();
-            if (minPoolSize <= 0) {
-                _logger.log(Level.WARNING, "Value of steadyPoolSize Given, {0}, was outside the bounds"
-                        + ", default value of 8 will be used - PLEASE UPDATE YOUR VALUE", minPoolSize);
+            if (minPoolSize == -1) {
                 minPoolSize = 8;
             }
             return String.valueOf(minPoolSize);
@@ -658,9 +656,7 @@ public class DataSourceDefinitionDeployer implements ResourceDeployer {
         @Override
         public String getMaxPoolSize() {
             int maxPoolSize = desc.getMaxPoolSize();
-            if (maxPoolSize <= 0) {
-                _logger.log(Level.WARNING, "Value of maxPoolSize Given, {0}, was outside the bounds"
-                        + ", default value of 32 will be used - PLEASE UPDATE YOUR VALUE", maxPoolSize);
+            if (maxPoolSize == -1) {
                 maxPoolSize = 32;
             }
             return String.valueOf(maxPoolSize);
