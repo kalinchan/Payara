@@ -173,6 +173,5 @@
             <artifactId>javax.el-api</artifactId>
             <scope>test</scope>
         </dependency>
-	
     </dependencies>
 </project>
