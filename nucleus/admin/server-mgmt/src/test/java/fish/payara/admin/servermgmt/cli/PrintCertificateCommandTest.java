@@ -190,7 +190,7 @@ public class PrintCertificateCommandTest {
         assertEquals("Version:    3", output[4]);
         assertEquals("Issuer:     " + dn, output[5]);
         assertEquals("Public Key: RSA, 2048 bits", output[6]);
-        assertEquals("Sign. Alg.: SHA256withRSA (OID: 1.2.840.113549.1.1.11)", output[7]);
+        assertEquals("Sign. Alg.: SHA256withRSA (OID: 1.2.840.113549.1.1.11)", output[7].trim());
     }
 
 
@@ -210,7 +210,7 @@ public class PrintCertificateCommandTest {
         assertEquals("Version:    3", output[4]);
         assertEquals("Issuer:     " + dn, output[5]);
         assertEquals("Public Key: RSA, 2048 bits", output[6]);
-        assertEquals("Sign. Alg.: SHA256WITHRSA (OID: 1.2.840.113549.1.1.11)", output[7]);
+        assertEquals("Sign. Alg.: SHA256WITHRSA (OID: 1.2.840.113549.1.1.11)", output[7].trim());
     }
 
 
