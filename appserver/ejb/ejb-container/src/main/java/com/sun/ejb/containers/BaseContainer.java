@@ -3463,7 +3463,9 @@ public abstract class BaseContainer implements Container, EjbContainerFacade, Ja
                 lifecycleCallbackAnnotationClasses,
                 getPre30LifecycleMethodNames());
         if (!pendingInterceptors.isEmpty()) {
-            pendingInterceptors.forEach(this::registerSystemInterceptor);
+            for (Object interceptor : pendingInterceptors) {
+                registerSystemInterceptor(interceptor);
+            }
             pendingInterceptors.clear();
         }
     }
