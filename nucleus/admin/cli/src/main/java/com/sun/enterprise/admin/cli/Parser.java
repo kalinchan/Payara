@@ -47,7 +47,7 @@ import org.glassfish.api.admin.*;
 import org.glassfish.api.admin.CommandModel.ParamModel;
 import com.sun.enterprise.admin.util.CommandModelData.ParamModelData;
 import com.sun.enterprise.universal.i18n.LocalStringsImpl;
-
+import com.sun.enterprise.util.StringUtils;
 
 /**
  * The <code>Parser</code> object is used to parse the
