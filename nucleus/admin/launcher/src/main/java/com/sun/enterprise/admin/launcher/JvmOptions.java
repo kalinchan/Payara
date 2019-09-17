@@ -41,12 +41,11 @@
 
 package com.sun.enterprise.admin.launcher;
 
+import com.sun.enterprise.util.OS;
+import com.sun.enterprise.util.StringUtils;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.sun.enterprise.util.OS;
-import com.sun.enterprise.util.StringUtils;
 
 import static com.sun.enterprise.util.StringUtils.ok;
 
