@@ -72,7 +72,7 @@ public final class JDK {
     public static int getUpdate() {
         return update;
     }
-
+    
     public static class Version {
         private final int major;
         private final Integer minor;
@@ -156,11 +156,10 @@ public final class JDK {
          */
         private static boolean equals(Integer leftHandSide, Integer rightHandSide) {
 
-            if (leftHandSide != null && rightHandSide != null) {
-                leftHandSide.equals(rightHandSide);
+            if (leftHandSide == null || rightHandSide == null) {
+                return true;
             }
-            
-            return true;
+            return leftHandSide.equals(rightHandSide);
         }
 
         @Override
@@ -252,7 +251,7 @@ public final class JDK {
      * @return true if within the version range, false otherwise
      */
     public static boolean isCorrectJDK(Version reference, Version minVersion, Version maxVersion) {
-        Version version = reference;
+        Version version = reference == null ? JDK_VERSION : reference;
         boolean correctJDK = true;
         
         if (reference == null) {
@@ -298,7 +297,8 @@ public final class JDK {
         major = 1;
         minor = subminor = update = 0;
         try {
-            String jv = System.getProperty("java.version");
+            String javaVersion = System.getProperty("java.version");
+       
             /*In JEP 223 java.specification.version will be a single number versioning , not a dotted versioning . So if we get a single
             integer as versioning we know that the JDK is post JEP 223
             For JDK 8:
@@ -312,7 +312,7 @@ public final class JDK {
             String[] jsvSplit = javaSpecificationVersion.split("\\.");
             if (jsvSplit.length == 1) {
                 //This is handle Early Access build .Example 9-ea
-                String[] jvSplit = jv.split("-");
+                String[] jvSplit = javaVersion.split("-");
                 String jvReal = jvSplit[0];
                 String[] split = jvReal.split("[\\.]+");
 
@@ -331,10 +331,10 @@ public final class JDK {
                     }
                 }
             } else {
-                if (!StringUtils.ok(jv))
+                if (!StringUtils.ok(javaVersion))
                     return; // not likely!!
 
-                String[] ss = jv.split("\\.");
+                String[] ss = javaVersion.split("\\.");
 
                 if (ss.length < 3 || !ss[0].equals("1"))
                     return;
