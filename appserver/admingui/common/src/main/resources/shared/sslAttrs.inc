@@ -60,8 +60,20 @@
                 EphemeralCiphersList="#{requestScope.availableEphemeral}"
                 OtherCiphersList="#{requestScope.availableOther}"
                 EccCiphersList="#{requestScope.availableEcc}")
+
         py.getJavaVendor(javaVendor="#{requestScope.javaVendor}");
         setPageSessionAttribute(key="isVendorAzul", value="#{requestScope.javaVendor.contains('Azul')}");
+
+        setPageSessionAttribute(key="showTLS13Prop", value="#{false}");
+
+        if (#{pageSession.isVendorAzul}){
+            py.getJdkUpdateVersion(jdkUpdateVersion="#{requestScope.jdkUpdateVersion}");
+
+            if (#{requestScope.jdkUpdateVersion}>$int{221}){
+                setPageSessionAttribute(key="showTLS13Prop", value="#{true}");
+            }
+
+        }
         
     />
      <!afterCreate
@@ -85,7 +97,7 @@
      <sun:property id="TLSProp12"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}" label="$resource{i18n.ssl.tlsLabel12}" >
         <sun:checkbox id="TLS12" label="$resource{i18n.desc.Enabled}" selected="#{pageSession.valueMap['tls12Enabled']}" selectedValue="true"/>
      </sun:property>
-     <sun:property id="TLSProp13"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}" label="$resource{i18n.ssl.tlsLabel13}" rendered="#{pageSession.isVendorAzul}" >
+     <sun:property id="TLSProp13"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}" label="$resource{i18n.ssl.tlsLabel13}" rendered="#{pageSession.showTLS13Prop}" >
         <sun:checkbox id="TLS13" label="$resource{i18n.desc.Enabled}" selected="#{pageSession.valueMap['tls13Enabled']}" selectedValue="true"/>
      </sun:property>
      <sun:property id="ClientAuthProp"  labelAlign="left" noWrap="#{true}" overlapLabel="#{false}" label="$resource{i18n.ssl.clientAuthLabel}" helpText="$resource{i18n.ssl.clientAuthHelp}" >

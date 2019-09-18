@@ -49,6 +49,7 @@
 
 package org.glassfish.admingui.common.handlers;
 
+import com.sun.enterprise.util.JDK;
 import com.sun.jsftemplating.annotation.Handler;
 import com.sun.jsftemplating.annotation.HandlerInput;
 import com.sun.jsftemplating.annotation.HandlerOutput;
@@ -1169,6 +1170,14 @@ public class UtilHandlers {
     public static void getJavaVendor(HandlerContext handlerCtx) {
         String javaVendor = System.getProperty("java.vendor");
         handlerCtx.setOutputValue("javaVendor", javaVendor);
+    }
+    
+    @Handler(id = "py.getJdkUpdateVersion",
+            output = {
+                @HandlerOutput(name = "jdkUpdateVersion", type = String.class)}
+    )
+    public static void getJdkUpdateVersion(HandlerContext handlerCtx) {
+        handlerCtx.setOutputValue("jdkUpdateVersion", JDK.getUpdate());
     }
 
     private static final String PATH_SEPARATOR = "${path.separator}";

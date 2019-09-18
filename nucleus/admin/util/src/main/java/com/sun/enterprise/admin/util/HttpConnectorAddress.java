@@ -43,6 +43,7 @@
 package com.sun.enterprise.admin.util;
 
 import com.sun.enterprise.universal.GFBase64Encoder;
+import com.sun.enterprise.util.JDK;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -67,6 +68,8 @@ public final class HttpConnectorAddress {
     public static final String  AUTHORIZATION_KEY     = "Authorization";
     private static final String AUTHORIZATION_TYPE = "Basic ";
     private static final String DEFAULT_PROTOCOL = TLS12;
+    private static final String ZULU_JDK_VENDOR = "Azul";
+    private static final int MINIMUM_UPDATE_VERSION = 222;
 
     private String host;
     private int    port;
@@ -200,11 +203,19 @@ public final class HttpConnectorAddress {
                                                 protocol);
                                         break;
 
-                        case TLS13: protocol = TLS13;
-                                        logger.log(Level.FINE, 
-                                                AdminLoggerInfo.settingHttpsProtocol,
-                                                protocol);
-                                        break;
+                        case TLS13:
+                            
+                            if (!JDK.getVendor().contains(ZULU_JDK_VENDOR) && JDK.getUpdate() >= MINIMUM_UPDATE_VERSION) {
+                                protocol = TLS13;
+                            } else {
+
+                                protocol = DEFAULT_PROTOCOL;
+                            }
+                            
+                            logger.log(Level.FINE,
+                                    AdminLoggerInfo.settingHttpsProtocol,
+                                    protocol);
+                            break;
                         
                         default:        protocol = DEFAULT_PROTOCOL;
                                         String[] logParams = {protocol, clientHttpsProtocol};

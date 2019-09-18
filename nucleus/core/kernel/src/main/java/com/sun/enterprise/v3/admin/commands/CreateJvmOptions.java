@@ -148,7 +148,7 @@ public final class CreateJvmOptions implements AdminCommand, AdminCommandSecurit
            
             validate(bag, validOptions, report); //Note: method mutates the given list
             validateSoft(bag, validOptions, report); //Note: method does not mutate the given list
-            addX(bag, validOptions, part);
+            addX(bag, new ArrayList<>(jvmOptions), part);
         } catch (IllegalArgumentException iae) {
             report.setMessage(iae.getMessage());
             report.setActionExitCode(ActionReport.ExitCode.FAILURE);

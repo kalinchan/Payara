@@ -73,6 +73,10 @@ public final class JDK {
         return update;
     }
     
+    public static String getVendor() {
+        return vendor;
+    }
+
     public static class Version {
         private final int major;
         private final Integer minor;
@@ -290,6 +294,7 @@ public final class JDK {
     private static int minor;
     private static int subminor;
     private static int update;
+    private static String vendor;
     private static Version JDK_VERSION;
 
     // silently fall back to ridiculous defaults if something is crazily wrong...
@@ -298,6 +303,7 @@ public final class JDK {
         minor = subminor = update = 0;
         try {
             String javaVersion = System.getProperty("java.version");
+            vendor = System.getProperty("java.vendor");
        
             /*In JEP 223 java.specification.version will be a single number versioning , not a dotted versioning . So if we get a single
             integer as versioning we know that the JDK is post JEP 223
