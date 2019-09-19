@@ -38,7 +38,7 @@
  * holder.
  */
  
-// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
+// Portions Copyright [2016-2019] [Payara Foundation and/or its affiliates]
 package org.glassfish.admin.rest.utils;
 
 import com.sun.enterprise.config.serverbeans.Config;
