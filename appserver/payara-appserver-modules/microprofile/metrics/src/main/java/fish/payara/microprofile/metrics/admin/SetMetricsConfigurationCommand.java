@@ -40,7 +40,6 @@
 package fish.payara.microprofile.metrics.admin;
 
 import com.sun.enterprise.config.serverbeans.Config;
-import com.sun.enterprise.config.serverbeans.Domain;
 import fish.payara.microprofile.SetSecureMicroprofileConfigurationCommand;
 import fish.payara.microprofile.metrics.MetricsService;
 import java.util.logging.Logger;
@@ -58,10 +57,8 @@ import org.glassfish.api.admin.RuntimeType;
 import org.glassfish.config.support.CommandTarget;
 import org.glassfish.config.support.TargetType;
 import org.glassfish.hk2.api.PerLookup;
-import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.internal.api.Globals;
 import org.glassfish.internal.api.Target;
-import org.glassfish.internal.config.UnprocessedConfigListener;
 import org.jvnet.hk2.annotations.Service;
 import org.jvnet.hk2.config.ConfigSupport;
 import org.jvnet.hk2.config.TransactionFailure;
@@ -106,15 +103,6 @@ public class SetMetricsConfigurationCommand extends SetSecureMicroprofileConfigu
     @Param(name = "virtualServers", optional = true)
     private String virtualServers;
 
-    @Inject
-    private Domain domain;
-
-    @Inject
-    UnprocessedConfigListener unprocessedListener;
-
-    @Inject
-    ServiceLocator habitat;
-    
     @Override
     public void execute(AdminCommandContext context) {
         ActionReport actionReport = context.getActionReport();
