@@ -78,17 +78,27 @@ public final class JDK {
     }
 
     public static class Version {
+        private final String vendor;
         private final int major;
         private final Integer minor;
         private final Integer subminor;
         private final Integer update;
 
-        private Version(String string) {
+        private Version(String version) {
             // split java version into it's constituent parts, i.e.
             // 1.2.3.4 -> [ 1, 2, 3, 4]
             // 1.2.3u4 -> [ 1, 2, 3, 4]
             // 1.2.3_4 -> [ 1, 2, 3, 4]
-            String[] split = string.split("[\\._u\\-]+");
+            
+            if (version.contains("-")) {
+                String[] versionSplit = version.split("-");
+                vendor = versionSplit.length > 0 ? versionSplit[0] : null;
+                version = versionSplit.length > 1 ? versionSplit[1] : "";
+            } else {
+                vendor = null;
+            }
+            
+            String[] split = version.split("[\\._u\\-]+");
 
             major = split.length > 0 ? Integer.parseInt(split[0]) : 0;
             minor = split.length > 1 ? Integer.parseInt(split[1]) : null;
@@ -97,6 +107,7 @@ public final class JDK {
         }
 
         private Version() {
+            vendor = JDK.vendor;
             major = JDK.major;
             minor = JDK.minor;
             subminor = JDK.subminor;
@@ -245,6 +256,10 @@ public final class JDK {
     public static boolean isCorrectJDK(Version minVersion, Version maxVersion) {
         return isCorrectJDK(JDK_VERSION, minVersion, maxVersion);
     }
+    
+    public static boolean isCorrectJDK(Version reference, Version minVersion, Version maxVersion) {
+        return isCorrectJDK(reference, null, minVersion, maxVersion);
+    }
 
     /**
      * Check if the reference version falls between the minVersion and maxVersion.
@@ -254,15 +269,19 @@ public final class JDK {
      * @param maxVersion The inclusive maximum version.
      * @return true if within the version range, false otherwise
      */
-    public static boolean isCorrectJDK(Version reference, Version minVersion, Version maxVersion) {
+    public static boolean isCorrectJDK(Version reference, String vendor, Version minVersion, Version maxVersion) {
         Version version = reference == null ? JDK_VERSION : reference;
         boolean correctJDK = true;
-        
+      
         if (reference == null) {
             version = JDK_VERSION;
         }
-        
-        if (minVersion != null) {
+
+        if (vendor != null) {
+            correctJDK = JDK.vendor.contains(vendor);
+        }
+
+        if (correctJDK && minVersion != null) {
             correctJDK = version.newerOrEquals(minVersion);
         }
         

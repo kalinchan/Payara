@@ -1170,8 +1170,7 @@ public class UtilHandlers {
                 @HandlerOutput(name = "javaVendor", type=String.class)}
     )
     public static void getJavaVendor(HandlerContext handlerCtx) {
-        String javaVendor = System.getProperty("java.vendor");
-        handlerCtx.setOutputValue("javaVendor", javaVendor);
+       handlerCtx.setOutputValue("javaVendor", JDK.getVendor());
     }
     
     @Handler(id = "py.getJdkUpdateVersion",

@@ -879,7 +879,7 @@ public abstract class GFLauncher {
             parser.getJvmOptions();
 
             for (JvmOption jvmOption : parser.getJvmOptions()) {
-                if (JDK.isCorrectJDK(jdkVersion, jvmOption.minVersion, jvmOption.maxVersion)) {
+                if (JDK.isCorrectJDK(jdkVersion, jvmOption.vendor, jvmOption.minVersion, jvmOption.maxVersion)) {
                     rawJvmOptions.add(jvmOption.option);
                 }
 

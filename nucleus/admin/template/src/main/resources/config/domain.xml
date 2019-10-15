@@ -199,7 +199,7 @@
         <!-- End of OSGi bundle configurations -->
         <jvm-options>-XX:NewRatio=2</jvm-options>
         <jvm-options>-Djdk.tls.rejectClientInitiatedRenegotiation=true</jvm-options>
-        <jvm-options>[1.8.0u222|]-XX:+UseOpenJSSE</jvm-options>
+        <jvm-options>[Azul-1.8.0u222|1.8.0u500]-XX:+UseOpenJSSE</jvm-options>
       </java-config>
       <network-config>
         <protocols>
@@ -348,7 +348,6 @@
              <jvm-options>-Dfelix.fileinstall.disableConfigSave=false</jvm-options>
              <!-- End of OSGi bundle configurations -->
              <jvm-options>-Djdk.tls.rejectClientInitiatedRenegotiation=true</jvm-options>
-             <jvm-options>[1.8.0u222|]-XX:+UseOpenJSSE</jvm-options>
          </java-config>
          <availability-service/>
          <network-config>

@@ -231,6 +231,7 @@ public class MiniXmlParser {
 
     public static class JvmOption {
         public final String option;
+        public final String vendor;
         public final JDK.Version minVersion;
         public final JDK.Version maxVersion;
 
@@ -247,12 +248,22 @@ public class MiniXmlParser {
         public JvmOption(String option) {
             Matcher matcher = PATTERN.matcher(option);
             if (matcher.matches()) {
-                this.minVersion = JDK.getVersion(matcher.group(1));
+                if (matcher.group(1).contains("-")) {
+                    String[] parts = matcher.group(1).split("-");
+                    this.vendor = parts[0];
+                    this.minVersion = JDK.getVersion(parts[1]);
+
+                } else {
+                    this.vendor = null;
+                    this.minVersion = JDK.getVersion(matcher.group(1));
+                }
+
                 this.maxVersion = JDK.getVersion(matcher.group(2));
                 this.option = matcher.group(3);
-            }
-            else {
+
+            } else {
                 this.option = option;
+                this.vendor = null;
                 this.minVersion = null;
                 this.maxVersion = null;
             }
@@ -260,6 +271,7 @@ public class MiniXmlParser {
 
         public JvmOption(String option, String minVersion, String maxVersion) {
             this.option = option;
+            this.vendor = null;
             this.minVersion = JDK.getVersion(minVersion);
             this.maxVersion = JDK.getVersion(maxVersion);
         }
