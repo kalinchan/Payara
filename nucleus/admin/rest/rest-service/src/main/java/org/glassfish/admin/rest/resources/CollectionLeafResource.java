@@ -41,36 +41,37 @@
 
 package org.glassfish.admin.rest.resources;
 
-import com.google.common.collect.ImmutableMap;
 import com.sun.enterprise.config.serverbeans.JavaConfig;
-import com.sun.enterprise.universal.xml.MiniXmlParser.JvmOption;
-import com.sun.enterprise.util.LocalStringManagerImpl;
-import java.util.ArrayList;
+
+import javax.ws.rs.PUT;
+import org.jvnet.hk2.config.TransactionFailure;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
 import org.glassfish.admin.rest.provider.MethodMetaData;
 import org.glassfish.admin.rest.results.ActionReportResult;
 import org.glassfish.admin.rest.results.OptionsResult;
-import org.glassfish.admin.rest.utils.ResourceUtil;
-import org.glassfish.admin.rest.utils.Util;
 import org.glassfish.admin.rest.utils.xml.RestActionReporter;
 import org.glassfish.api.ActionReport;
+
+import com.sun.enterprise.util.LocalStringManagerImpl;
+import org.glassfish.admin.rest.utils.ResourceUtil;
+import org.glassfish.admin.rest.utils.Util;
 import org.jvnet.hk2.config.Dom;
-import org.jvnet.hk2.config.TransactionFailure;
 
 import static org.glassfish.admin.rest.utils.Util.decode;
 import static org.glassfish.admin.rest.utils.Util.upperCaseFirstLetter;
@@ -86,10 +87,9 @@ public abstract class CollectionLeafResource extends AbstractResource {
     protected String tagName;
     protected String target;
     protected String profiler = "false";
-    protected boolean isJvmOptions = false;
 
-    public static final LocalStringManagerImpl localStrings = new LocalStringManagerImpl(CollectionLeafResource.class);
-  
+    public final static LocalStringManagerImpl localStrings = new LocalStringManagerImpl(CollectionLeafResource.class);
+
     /** Creates a new instance of xxxResource */
     public CollectionLeafResource() {
     }
@@ -105,19 +105,9 @@ public abstract class CollectionLeafResource extends AbstractResource {
     public void setParentAndTagName(Dom parent, String tagName) {
         this.parent = parent;
         this.tagName = tagName;
-        if (parent != null) {
+        if (parent!=null){
             synchronized (parent) {
-                if (parent.getImplementationClass().equals(JavaConfig.class) && isJvmOptions(tagName)) {
-                    JavaConfig javaConfig = (JavaConfig) parent.get();
-                    if (javaConfig != null) {
-                        entity = javaConfig.getJvmRawOptions();
-                    } else {
-                        entity = parent.leafElements(tagName);
-                    }
-                    isJvmOptions = true;
-                } else {
-                    entity = parent.leafElements(tagName);
-                }
+                entity = parent.leafElements(tagName);
             }
 
             if (parent.getImplementationClass().equals(JavaConfig.class)) {
@@ -157,7 +147,7 @@ public abstract class CollectionLeafResource extends AbstractResource {
 
         if (isJvmOptions(postCommand)) {
             existing = deleteExistingOptions();
-            payload = processData(data, false);
+            payload = processData(data);
         } else {
             payload = data;
         }
@@ -167,7 +157,7 @@ public abstract class CollectionLeafResource extends AbstractResource {
             "\"{0}\" created successfully.", "rest.resource.post.forbidden","POST on \"{0}\" is forbidden.");
         if (response.getStatus() != 200) {
             // If creating JVM options is error, restore JVM options with exsiting.  
-            payload = processData(existing, false);
+            payload = processData(existing);
             runCommand(postCommand, payload, "rest.resource.create.message",
                 "\"{0}\" created successfully.", "rest.resource.post.forbidden","POST on \"{0}\" is forbidden.");
         }
@@ -182,7 +172,7 @@ public abstract class CollectionLeafResource extends AbstractResource {
         Map<String, String> payload = null;
 
         if (isJvmOptions(postCommand)) {
-            payload = processData(data, false);
+            payload = processData(data);
         } else {
             payload = data;
         }
@@ -206,7 +196,7 @@ public abstract class CollectionLeafResource extends AbstractResource {
                 deleteExistingOptions();
                 return Response.ok().build();
             } else {
-                return runCommand(deleteCommand, processData(data, true), "rest.resource.delete.message",
+                return runCommand(deleteCommand, processData(data), "rest.resource.delete.message",
                     "\"{0}\" deleted successfully.", "rest.resource.delete.forbidden", "DELETE on \"{0}\" is forbidden.");
             }
         } else {
@@ -226,19 +216,7 @@ public abstract class CollectionLeafResource extends AbstractResource {
         RestActionReporter ar = new RestActionReporter();
         final String typeKey = upperCaseFirstLetter((decode(getName())));
         ar.setActionDescription(typeKey);
-        if (isJvmOptions) {
-            List<String> optionsEntity = getEntity();
-            List<ImmutableMap> optionsList = new ArrayList<>(optionsEntity.size());
-
-            for (String option : optionsEntity) {
-                JvmOption jvmOption = new JvmOption(option);
-                optionsList.add(ImmutableMap.of("minVersion", jvmOption.minVersion != null ? jvmOption.minVersion.toString() : "",
-                        "maxVersion", jvmOption.maxVersion != null ? jvmOption.maxVersion.toString() : "", "jvmOption", jvmOption.option));
-            }
-            ar.getExtraProperties().put("leafList", optionsList);
-        } else {
-            ar.getExtraProperties().put("leafList", getEntity());
-        }
+        ar.getExtraProperties().put("leafList", getEntity());
 
         OptionsResult optionsResult = new OptionsResult(Util.getResourceName(uriInfo));
         Map<String, MethodMetaData> mmd = getMethodMetaData();
@@ -312,7 +290,8 @@ public abstract class CollectionLeafResource extends AbstractResource {
                 ActionReport.ExitCode exitCode = actionReport.getActionExitCode();
                 if (exitCode != ActionReport.ExitCode.FAILURE) {
                     String successMessage =
-                        localStrings.getLocalString(successMsgKey, successMsg, attributeName);
+                        localStrings.getLocalString(successMsgKey,
+                            successMsg, new Object[] {attributeName});
                     return Response.ok(ResourceUtil.getActionReportResult(actionReport, successMessage, requestHeaders, uriInfo)).build();
                 }
 
@@ -320,7 +299,8 @@ public abstract class CollectionLeafResource extends AbstractResource {
                 return Response.status(400).entity(ResourceUtil.getActionReportResult(actionReport, errorMessage, requestHeaders, uriInfo)).build();
             }
             String message =
-                localStrings.getLocalString(operationForbiddenMsgKey, operationForbiddenMsg, uriInfo.getAbsolutePath());
+                localStrings.getLocalString(operationForbiddenMsgKey,
+                    operationForbiddenMsg, new Object[] {uriInfo.getAbsolutePath()});
             return Response.status(403).entity(ResourceUtil.getActionReportResult(ActionReport.ExitCode.FAILURE, message, requestHeaders, uriInfo)).build();
 
         } catch (Exception e) {
@@ -342,8 +322,8 @@ public abstract class CollectionLeafResource extends AbstractResource {
         return message;
     }
 
-    protected Map<String, String> processData(Map<String, String> data, boolean removeVersioning) {
-        Map<String, String> results = ResourceUtil.processJvmOptions(data, removeVersioning);
+    protected Map<String, String> processData(Map<String, String> data) {
+        Map<String, String> results = ResourceUtil.processJvmOptions(data);
         if (results.get("target") == null) {
             results.put("target", target);
         }
@@ -360,8 +340,10 @@ public abstract class CollectionLeafResource extends AbstractResource {
      * @return
      */
     protected String escapeOptionPart(String part) {
-        return part.replace("\\", "\\\\")
+        String changed = part
+                .replace("\\", "\\\\")
                 .replace(":", "\\:");
+        return changed;
     }
 
     // TODO: JvmOptions needs to have its own class, but the generator doesn't seem to support
@@ -374,7 +356,7 @@ public abstract class CollectionLeafResource extends AbstractResource {
         Map<String, String> existing = new HashMap<String, String>();
         existing.put("target", target);
         for (String option : getEntity()) {
-            int index = option.indexOf('=');
+            int index = option.indexOf("=");
             if (index > -1) {
                 existing.put(escapeOptionPart(option.substring(0, index)), escapeOptionPart(option.substring(index+1)));
             } else {
@@ -382,7 +364,7 @@ public abstract class CollectionLeafResource extends AbstractResource {
             }
         }
 
-        runCommand(getDeleteCommand(), processData(existing, true),
+        runCommand(getDeleteCommand(), processData(existing),
                 "rest.resource.delete.message",
                 "\"{0}\" deleted successfully.",
                 "rest.resource.delete.forbidden",

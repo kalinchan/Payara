@@ -38,7 +38,6 @@
     only if the new code is made subject to such option by the copyright
     holder.
 
-    Portions Copyright [2019] Payara Foundation and/or affiliates
 -->
 
 " <script type="text/javascript">
@@ -60,7 +59,6 @@
         var tlsProp = document.getElementById('#{sheetId}:TLSProp:TLS').checked; \
 	var tls11Prop = document.getElementById('#{sheetId}:TLSProp11:TLS11').checked; \
 	var tls12Prop = document.getElementById('#{sheetId}:TLSProp12:TLS12').checked; \
-        var tls13Prop = document.getElementById('#{sheetId}:TLSProp13:TLS13').checked; \
         if (ssl3Prop || tlsProp || ssl2Prop) {   \
             var result = checkForValue(getTextElement('#{sheetId}:CertNicknameProp:CertNickname'));  \
             if(result != true){ \
@@ -68,7 +66,7 @@
             } \
         } \
         if ((comField != '') || (ephField != '') || (bitField != '') || (eccField != '')){ \
-            if ((!ssl3Prop) && (!tlsProp)&& (!tls11Prop) &&(!tls12Prop) &&(!tls13Prop)) {   \
+            if ((!ssl3Prop) && (!tlsProp)&& (!tls11Prop) &&(!tls12Prop)) {   \
                 return showAlert('$resource{i18n.msg.JS.ssl.errCiphersSelected}'); \
             } \
         } \
@@ -76,3 +74,4 @@
     } 
 
 " </script>
+

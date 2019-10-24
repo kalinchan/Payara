@@ -37,14 +37,12 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-// Portions Copyright [2019] [Payara Foundation and/or its affiliates]
 
 package com.sun.enterprise.v3.admin.commands;
 
 import com.sun.enterprise.config.serverbeans.Config;
 import com.sun.enterprise.config.serverbeans.JavaConfig;
 import com.sun.enterprise.config.serverbeans.JvmOptionBag;
-import com.sun.enterprise.universal.xml.MiniXmlParser.JvmOption;
 import com.sun.enterprise.util.SystemPropertyConstants;
 import com.sun.enterprise.util.i18n.StringManager;
 import java.beans.PropertyVetoException;
@@ -161,22 +159,15 @@ public final class DeleteJvmOptions implements AdminCommand, AdminCommandSecurit
     */
     //@ForTimeBeing :)
     private void deleteX(final JvmOptionBag bag, final List<String> toRemove, final ActionReport.MessagePart part) throws Exception {
-        SingleConfigCode<JvmOptionBag> scc = new SingleConfigCode<JvmOptionBag>() {
-            @Override
+        SingleConfigCode<JvmOptionBag> scc = new SingleConfigCode<JvmOptionBag> () {
             public Object run(JvmOptionBag bag) throws PropertyVetoException, TransactionFailure {
-                List<String> jvmopts = new ArrayList<>(bag.getJvmOptions());
+                List<String> jvmopts = new ArrayList<String>(bag.getJvmOptions());
                 int orig = jvmopts.size();
-                                          
-                for (String option : toRemove) {
-                    if (jvmopts.contains(new JvmOption(option).option)) {
-                        jvmopts.remove(option);
-                    }
-                }
-                
+                boolean removed = jvmopts.removeAll(toRemove);
                 bag.setJvmOptions(jvmopts);
                 int now = jvmopts.size();
-                if (orig != now) {
-                    part.setMessage(lsm.getString("deleted.message", (orig - now)));
+                if (removed) {
+                    part.setMessage(lsm.getString("deleted.message", (orig-now)));
                 } else {
                     part.setMessage(lsm.getString("no.option.deleted"));
                 }
