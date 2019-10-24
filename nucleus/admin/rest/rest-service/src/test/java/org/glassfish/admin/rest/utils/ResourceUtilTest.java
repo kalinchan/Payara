@@ -43,6 +43,7 @@ package org.glassfish.admin.rest.utils;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.junit.Test;
 
 import static org.glassfish.admin.rest.utils.ResourceUtil.processJvmOptions;
@@ -57,37 +58,28 @@ import static org.junit.Assert.assertEquals;
 public class ResourceUtilTest {
 
     private static void assertJvmOptions(String expected, String key, String value) {
-        assertJvmOptions(expected, key, value, false); // first not removing versioning
-        assertJvmOptions(expected, key, value, true);  // then removing it
-        // now add an actual version prefix
-        String version = "[1.8.0u191|1.8.0u500]";
-        assertJvmOptions(version + expected, version + key, value, false); // first not removing versioning
-        assertJvmOptions(expected, version + key, value, true);  // then removing it
-    }
-
-    private static void assertJvmOptions(String expected, String key, String value, boolean removeVersioning) {
-        assertEquals(expected, processJvmOptions(Collections.singletonMap(key, value), removeVersioning).get("id"));
+        assertEquals(expected, processJvmOptions(Collections.singletonMap(key, value)).get("id"));
         // now with some other keys
         Map<String, String> data = new LinkedHashMap<>();
         data.put("before", "bvalue");
         data.put(key, value);
-        assertEquals("before=bvalue:" + expected, processJvmOptions(data, removeVersioning).get("id"));
+        assertEquals("before=bvalue:" + expected, processJvmOptions(data).get("id"));
         data.put("after", "avalue");
-        assertEquals("before=bvalue:" + expected + ":after=avalue", processJvmOptions(data, removeVersioning).get("id"));
+        assertEquals("before=bvalue:" + expected + ":after=avalue", processJvmOptions(data).get("id"));
         // now with target set
         data.put("target", "thetarget");
-        Map<String, String> processed = processJvmOptions(data, removeVersioning);
+        Map<String, String> processed = processJvmOptions(data);
         assertEquals("before=bvalue:" + expected + ":after=avalue", processed.get("id"));
         assertEquals("thetarget", processed.get("target"));
         // and with profiler set
         data.put("profiler", "theprofiler");
-        processed = processJvmOptions(data, removeVersioning);
+        processed = processJvmOptions(data);
         assertEquals("before=bvalue:" + expected + ":after=avalue", processed.get("id"));
         assertEquals("theprofiler", processed.get("profiler"));
         // and with an empty key in the map
         data.put("", "empty and therefore ignored");
         data.put(null, "null and therefore ignored");
-        assertEquals("before=bvalue:" + expected + ":after=avalue", processJvmOptions(data, removeVersioning).get("id"));
+        assertEquals("before=bvalue:" + expected + ":after=avalue", processJvmOptions(data).get("id"));
     }
 
     @Test
