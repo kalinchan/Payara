@@ -15,16 +15,16 @@
     <name>Payara Samples - Payara</name>
 
     <modules>
-        <!--<module>clustered-singleton</module>-->
+        <module>clustered-singleton</module>
         <module>custom-loginmodule-realm</module>
         <module>dynamic-roles</module>
-        <!--<module>formauth</module>
+        <module>formauth</module>
         <module>jacc-per-app</module>
         <module>jaxrs-rolesallowed</module>
-        <module>jaxrs-rolesallowed-servlet</module>-->
+        <module>jaxrs-rolesallowed-servlet</module>
         <module>jaxws-tracing</module>
-        <!--<module>rolesPermitted</module>
-        <module>oauth2</module>-->
+        <module>rolesPermitted</module>
+        <module>oauth2</module>
         <module>openid</module>
         <module>asadmin</module>
         <module>microprofile-endpoints</module>
