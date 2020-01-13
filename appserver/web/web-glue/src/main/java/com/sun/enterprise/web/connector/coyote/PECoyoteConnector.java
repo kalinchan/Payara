@@ -1276,7 +1276,8 @@ public class PECoyoteConnector extends Connector {
         if (sslProtocolsBuf.isEmpty()) {
             _logger.log(Level.WARNING, LogFacade.ALL_SSL_PROTOCOLS_DISABLED, listener.getName());
         } else {
-            setSslProtocols(String.join(", ", sslProtocolsBuf));
+            String sslProtocols = sslProtocolsBuf.toString();
+            setSslProtocols(sslProtocols.substring(1, sslProtocols.length() - 1));
         }
 
         // cert-nickname
