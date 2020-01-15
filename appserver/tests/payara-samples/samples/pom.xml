@@ -184,6 +184,7 @@
                     <artifactId>arquillian-payara-server-managed</artifactId>
                     <version>${payara.container.version}</version>
                     <scope>test</scope>
+                    <optional>true</optional>
                 </dependency>
             </dependencies>
 
@@ -265,6 +266,7 @@
                     <artifactId>arquillian-payara-server-remote</artifactId>
                     <version>${payara.container.version}</version>
                     <scope>test</scope>
+                    <optional>true</optional>
                 </dependency>
             </dependencies>
             <build>
