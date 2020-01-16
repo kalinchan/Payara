@@ -47,7 +47,6 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -97,12 +96,45 @@ public class WebappClassLoaderTest {
         webappClassLoader.start();
         webappClassLoader.setResources(new FileDirContext());
 
-        CompletableFuture<Void> result = new CompletableFuture<>();
+        final CompletableFuture<Void> result = new CompletableFuture<>();
 
         // Create the tasks to run
-        Runnable lookupTask = waitAndDo(result, () -> lookup(webappClassLoader));
-        Runnable addTask = waitAndDo(result, () -> add(webappClassLoader));
-        Runnable closeTask = waitAndDo(result, () -> webappClassLoader.closeJARs(true));
+        Runnable lookupTask = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    lookup(webappClassLoader);
+                } catch (Exception ex) {
+                    result.completeExceptionally(ex);
+                } finally {
+                    latch.countDown();
+                }
+            }
+        };
+        Runnable addTask = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    add(webappClassLoader);
+                } catch (Exception ex) {
+                    result.completeExceptionally(ex);
+                } finally {
+                    latch.countDown();
+                }
+            }
+        };
+        Runnable closeTask = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    webappClassLoader.closeJARs(true);
+                } catch (Exception ex) {
+                    result.completeExceptionally(ex);
+                } finally {
+                    latch.countDown();
+                }
+            }
+        };
 
         try {
             // Run the methods at the same time
@@ -153,31 +185,50 @@ public class WebappClassLoaderTest {
         return jarFiles;
     }
 
-    /**
-     * Generate a task that will wait on the passed cyclic barrier before running
-     * the passed task. Record the result in the passed future
-     * 
-     * @param result where to store any encountered exceptions
-     * @param task   the task to run
-     * @return a new task
-     */
-    private Runnable waitAndDo(final CompletableFuture<Void> result, final ExceptionalRunnable task) {
-        return () -> {
-            try {
-                task.run();
-            } catch (Exception ex) {
-                result.completeExceptionally(ex);
-            } finally {
-                latch.countDown();
-            }
-        };
-    }
+    private static class CompletableFuture<T> {
 
-    /**
-     * A runnable interface that allows exceptions
-     */
-    @FunctionalInterface
-    private interface ExceptionalRunnable {
-        void run() throws Exception;
+        private volatile T result;
+        private volatile Throwable exception;
+
+        /**
+         * Returns the result value (or throws any encountered exception) if completed,
+         * else returns the given valueIfAbsent.
+         * 
+         * @param valueIfAbsent the value to return if not completed
+         * @return the result value, if completed, else the given valueIfAbsent
+         * @throws CompletionException if this future completed exceptionally or a
+         *                             completion computation threw an exception
+         */
+        public synchronized T getNow(T valueIfAbsent) {
+            if (exception != null) {
+                throw new CompletionException(exception);
+            }
+            if (result != null) {
+                return result;
+            }
+            return valueIfAbsent;
+        }
+
+        /**
+         * If not already completed, causes invocations of get() and related methods to
+         * throw the given exception.
+         * 
+         * @param ex the exception
+         * @return true if this invocation caused this CompletableFuture to transition
+         *         to a completed state, else false
+         */
+        public synchronized boolean completeExceptionally(Throwable ex) {
+            this.exception = ex;
+            return true;
+        }
+
+        private static class CompletionException extends RuntimeException {
+
+            private static final long serialVersionUID = 1L;
+
+            public CompletionException(Throwable cause) {
+                super(cause);
+            }
+        }
     }
 }
