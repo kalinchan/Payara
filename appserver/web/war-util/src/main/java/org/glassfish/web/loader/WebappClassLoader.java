@@ -848,55 +848,57 @@ public class WebappClassLoader
         }
 
         // See IT 11417
-        super.addURL(getURL(file));
+        synchronized(jarFilesLock) {
+            super.addURL(getURL(file));
 
-        if ((jarPath != null) && (jar.startsWith(jarPath))) {
+            if ((jarPath != null) && (jar.startsWith(jarPath))) {
 
-            String jarName = jar.substring(jarPath.length());
-            while (jarName.startsWith("/")) {
-                jarName = jarName.substring(1);
+                String jarName = jar.substring(jarPath.length());
+                while (jarName.startsWith("/")) {
+                    jarName = jarName.substring(1);
+                }
+                jarNames.add(jarName);
             }
-            jarNames.add(jarName);
-        }
 
-        try {
-            // Register the JAR for tracking
+            try {
+                // Register the JAR for tracking
 
-            long lastModified = ((ResourceAttributes) resources.getAttributes(jar))
-                    .getLastModified();
+                long lastModified = ((ResourceAttributes) resources.getAttributes(jar))
+                        .getLastModified();
 
-            String[] result = new String[paths.length + 1];
-            for (int i = 0; i < paths.length; i++) {
-                result[i] = paths[i];
+                String[] result = new String[paths.length + 1];
+                for (int i = 0; i < paths.length; i++) {
+                    result[i] = paths[i];
+                }
+                result[paths.length] = jar;
+                paths = result;
+
+                long[] result3 = new long[lastModifiedDates.length + 1];
+                for (int i = 0; i < lastModifiedDates.length; i++) {
+                    result3[i] = lastModifiedDates[i];
+                }
+                result3[lastModifiedDates.length] = lastModified;
+                lastModifiedDates = result3;
+
+            } catch (NamingException e) {
+                // Ignore
             }
-            result[paths.length] = jar;
-            paths = result;
 
-            long[] result3 = new long[lastModifiedDates.length + 1];
-            for (int i = 0; i < lastModifiedDates.length; i++) {
-                result3[i] = lastModifiedDates[i];
+            JarFile[] result2 = new JarFile[jarFiles.length + 1];
+            for (int i = 0; i < jarFiles.length; i++) {
+                result2[i] = jarFiles[i];
             }
-            result3[lastModifiedDates.length] = lastModified;
-            lastModifiedDates = result3;
+            result2[jarFiles.length] = jarFile;
+            jarFiles = result2;
 
-        } catch (NamingException e) {
-            // Ignore
+            // Add the file to the list
+            File[] result4 = new File[jarRealFiles.length + 1];
+            for (int i = 0; i < jarRealFiles.length; i++) {
+                result4[i] = jarRealFiles[i];
+            }
+            result4[jarRealFiles.length] = file;
+            jarRealFiles = result4;
         }
-
-        JarFile[] result2 = new JarFile[jarFiles.length + 1];
-        for (int i = 0; i < jarFiles.length; i++) {
-            result2[i] = jarFiles[i];
-        }
-        result2[jarFiles.length] = jarFile;
-        jarFiles = result2;
-
-        // Add the file to the list
-        File[] result4 = new File[jarRealFiles.length + 1];
-        for (int i = 0; i < jarRealFiles.length; i++) {
-            result4[i] = jarRealFiles[i];
-        }
-        result4[jarRealFiles.length] = file;
-        jarRealFiles = result4;
     }
 
 
