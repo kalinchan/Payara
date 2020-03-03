@@ -102,7 +102,10 @@ public class CustomTokenClient {
                 Set<Integer> usedPorts = new HashSet<Integer>();
                 Properties domainProps = domainConfig.getDomainProperties();
                 String portBase = (String) domainConfig.get(DomainConfig.K_PORTBASE);
-                boolean checkPorts = (Boolean) domainConfig.getOrDefault(DomainConfig.K_VALIDATE_PORTS, Boolean.TRUE);
+                boolean checkPorts = true;
+                if (domainConfig.containsKey(DomainConfig.K_VALIDATE_PORTS)) {
+                    checkPorts = (Boolean) domainConfig.get(DomainConfig.K_VALIDATE_PORTS);
+                }
 
                 Map<String, String> filePaths = new HashMap<String, String>(3, 1);
                 filePaths.put(SystemPropertyConstants.INSTALL_ROOT_PROPERTY, System.getProperty(SystemPropertyConstants.INSTALL_ROOT_PROPERTY));
