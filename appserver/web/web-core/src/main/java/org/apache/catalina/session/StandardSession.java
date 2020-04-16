@@ -1338,13 +1338,21 @@ public class StandardSession
      */
     public Enumeration<String> getAttributeNames() {
 
-        if (!getIsValid()) {
+        if (!isValid()) {
             throw new IllegalStateException
               ("getAttributeNames: " + rb.getString(LogFacade.SESSION_INVALIDATED_EXCEPTION));
         }
 
-        return (new Enumerator<String>(attributes.keySet(), true));
+        return getAttributeNamesInternal();
+    }
 
+    /**
+     * Returns names of attributes even for expired session.
+     *
+     * @return names of attributes ignoring state of session
+     */
+    protected Enumerator<String> getAttributeNamesInternal() {
+        return new Enumerator<>(attributes.keySet(), true);
     }
 
 
