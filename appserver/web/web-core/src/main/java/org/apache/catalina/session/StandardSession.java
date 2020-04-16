@@ -1338,10 +1338,10 @@ public class StandardSession
      */
     public Enumeration<String> getAttributeNames() {
 
-        if (!isValid())
+        if (!getIsValid()) {
             throw new IllegalStateException
-                ("getAttributeNames: " + rb.getString(LogFacade.SESSION_INVALIDATED_EXCEPTION));
-
+              ("getAttributeNames: " + rb.getString(LogFacade.SESSION_INVALIDATED_EXCEPTION));
+        }
 
         return (new Enumerator<String>(attributes.keySet(), true));
 
