@@ -723,15 +723,6 @@ public class StandardSession
             return true;
         }
 
-        /* SJSAS 6329289
-        if (maxInactiveInterval >= 0) { 
-            long timeNow = System.currentTimeMillis();
-            int timeIdle = (int) ((timeNow - thisAccessedTime) / 1000L);
-            if (timeIdle >= maxInactiveInterval) {
-                expire(true);
-            }
-        }
-        */
         // START SJSAS 6329289
         if (hasExpired()) {
             expire(true);
