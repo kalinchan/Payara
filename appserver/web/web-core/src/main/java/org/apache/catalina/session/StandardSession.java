@@ -708,6 +708,7 @@ public class StandardSession
     /**
      * Return the <code>isValid</code> flag for this session.
      */
+    @Override
     public boolean isValid() {
 
         if (this.expiring){
