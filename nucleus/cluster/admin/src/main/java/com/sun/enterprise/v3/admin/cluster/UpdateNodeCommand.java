@@ -250,7 +250,7 @@ public class UpdateNodeCommand implements AdminCommand {
                         if (sshnodehost != null) {
                             sshConnector.setSshHost(sshnodehost);
                         }
-
+                        writeableNode.setSshConnector(sshConnector);
                         if (sshAuthType != null || sshuser != null //
                             || sshkeyfile != null || sshpassword != null || sshkeypassphrase != null) {
                             SshAuth sshAuth = sshConnector.getSshAuth();
