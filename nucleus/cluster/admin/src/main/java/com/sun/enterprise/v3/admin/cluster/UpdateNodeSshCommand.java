@@ -74,7 +74,7 @@ public class UpdateNodeSshCommand extends UpdateNodeRemoteCommand {
     @Param(name = "sshuser", optional = true)
     private String sshuserInSubClass;
      /** {@link SshAuthType} name */
-    @Param(name = "sshauthtype", optional = true)
+    @Param(name = "sshauthtype", optional = true, acceptableValues = "KEY,PASSWORD")
     private String sshAuthTypeInSubClass;
     @Param(name = "sshkeyfile", optional = true)
     private String sshkeyfileInSubClass;
