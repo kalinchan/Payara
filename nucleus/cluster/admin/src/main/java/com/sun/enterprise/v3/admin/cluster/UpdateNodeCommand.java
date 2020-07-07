@@ -139,10 +139,10 @@ public class UpdateNodeCommand implements AdminCommand {
     @Override
     public void execute(AdminCommandContext context) {
         LOG.log(Level.FINEST, String.format("execute(context=%s)", context));
-        ActionReport report = context.getActionReport();
-        Logger logger= context.getLogger();
-
-        Node node= nodes.getNode(name);
+        final ActionReport report = context.getActionReport();
+        final Logger logger = context.getLogger();
+        final Node node = nodes.getNode(name);
+       
         if (node == null) {
             //node doesn'transaction exist
             String msg = Strings.get("noSuchNode", name);
@@ -193,8 +193,8 @@ public class UpdateNodeCommand implements AdminCommand {
 
         try {
             updateNodeElement(name);
-        } catch(TransactionFailure e) {
-            logger.log(Level.WARNING, "failed.to.update.node {0}", name);
+        } catch (TransactionFailure e) {
+            logger.log(Level.WARNING, Strings.get("failed.to.update.node {0}", name), e);
             report.setActionExitCode(ActionReport.ExitCode.FAILURE);
             report.setMessage(e.getMessage());
         }
