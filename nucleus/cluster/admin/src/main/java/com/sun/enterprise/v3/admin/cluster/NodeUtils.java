@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-// Portions Copyright [2018] Payara Foundation and/or affiliates
+// Portions Copyright [2018-2020] Payara Foundation and/or affiliates
 
 package com.sun.enterprise.v3.admin.cluster;
 
@@ -91,7 +91,7 @@ public class NodeUtils {
     static final String PARAM_REMOTEPORT = "sshport";
     public static final String PARAM_REMOTEUSER = "sshuser";
     static final String PARAM_SSHKEYFILE = "sshkeyfile";
-    static final String PARAM_REMOTEPASSWORD = "sshpassword";
+    static final String PARAM_SSHPASSWORD = "sshpassword";
     static final String PARAM_SSHKEYPASSPHRASE = "sshkeypassphrase";
     static final String PARAM_WINDOWSDOMAINNAME = "windowsdomain";
     static final String PARAM_TYPE = "type";
@@ -172,7 +172,7 @@ public class NodeUtils {
             SshAuth ssha = sshc.getSshAuth();
             map.add(NodeUtils.PARAM_REMOTEUSER, ssha.getUserName());
             map.add(NodeUtils.PARAM_SSHKEYFILE, ssha.getKeyfile());
-            map.add(NodeUtils.PARAM_REMOTEPASSWORD, ssha.getPassword());
+            map.add(NodeUtils.PARAM_SSHPASSWORD, ssha.getPassword());
             map.add(NodeUtils.PARAM_SSHKEYPASSPHRASE, ssha.getKeyPassphrase());
             map.add(NodeUtils.PARAM_TYPE, node.getType());
         }
@@ -188,7 +188,7 @@ public class NodeUtils {
      */
     void validate(ParameterMap map) throws CommandValidationException {
 
-        validatePassword(map.getOne(PARAM_REMOTEPASSWORD));
+        validatePassword(map.getOne(PARAM_SSHPASSWORD));
         String nodehost = map.getOne(PARAM_NODEHOST);
         validateHostName(nodehost);
         validateRemote(map, nodehost);
@@ -457,7 +457,7 @@ public class NodeUtils {
         String nodehost = resolver.resolve(map.getOne(PARAM_NODEHOST));
         String installdir = resolver.resolve(map.getOne(PARAM_INSTALLDIR));
         String user = resolver.resolve(map.getOne(PARAM_REMOTEUSER));
-        String password = map.getOne(PARAM_REMOTEPASSWORD);
+        String password = map.getOne(PARAM_SSHPASSWORD);
         String domain = nodehost;
 
         pingDcomConnection(nodehost, domain, user, password, getInstallRoot(installdir));
@@ -471,7 +471,7 @@ public class NodeUtils {
         String sshport = map.getOne(PARAM_REMOTEPORT);
         String sshuser = map.getOne(PARAM_REMOTEUSER);
         String sshkeyfile = map.getOne(PARAM_SSHKEYFILE);
-        String sshpassword = map.getOne(PARAM_REMOTEPASSWORD);
+        String sshpassword = map.getOne(PARAM_SSHPASSWORD);
         String sshkeypassphrase = map.getOne(PARAM_SSHKEYPASSPHRASE);
         boolean installFlag = Boolean.parseBoolean(map.getOne(PARAM_INSTALL));
 
