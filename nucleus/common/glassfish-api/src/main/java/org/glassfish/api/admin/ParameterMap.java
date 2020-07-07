@@ -42,8 +42,6 @@
 
 package org.glassfish.api.admin;
 
-import java.util.Objects;
-import java.util.function.Supplier;
 import org.jvnet.hk2.component.MultiMap;
 
 /**
