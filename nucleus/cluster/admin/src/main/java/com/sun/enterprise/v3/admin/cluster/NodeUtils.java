@@ -55,6 +55,7 @@ import com.sun.enterprise.util.net.NetUtils;
 import org.glassfish.api.ActionReport;
 import org.glassfish.api.admin.*;
 import com.sun.enterprise.universal.glassfish.TokenResolver;
+import com.sun.enterprise.util.cluster.SshAuthType;
 import com.sun.enterprise.util.cluster.windows.process.WindowsCredentials;
 import com.sun.enterprise.util.cluster.windows.process.WindowsRemotePinger;
 import com.sun.enterprise.util.cluster.windows.io.WindowsRemoteFile;
@@ -90,6 +91,7 @@ public class NodeUtils {
     static final String PARAM_NODEDIR = "nodedir";
     static final String PARAM_REMOTEPORT = "sshport";
     public static final String PARAM_REMOTEUSER = "sshuser";
+    public static final String PARAM_SSHAUTHTYPE = "sshauthtype";
     static final String PARAM_SSHKEYFILE = "sshkeyfile";
     static final String PARAM_SSHPASSWORD = "sshpassword";
     static final String PARAM_SSHKEYPASSPHRASE = "sshkeypassphrase";
@@ -225,6 +227,12 @@ public class NodeUtils {
      * @throws CommandValidationException
      */
     private void validateSsh(ParameterMap map) throws CommandValidationException {
+        
+        final SshAuthType authType = parseSshAuthType(map);
+        if (authType != null && authType != SshAuthType.KEY) {
+            return;
+        }
+
 
         String sshkeyfile = map.getOne(PARAM_SSHKEYFILE);
         if (StringUtils.ok(sshkeyfile)) {
@@ -648,8 +656,19 @@ public class NodeUtils {
 
         try {
             return RemoteType.valueOf(map.getOne(PARAM_TYPE));
+        } catch (Exception e) {
+            throw new CommandValidationException(e);
         }
-        catch (Exception e) {
+    }
+
+    private SshAuthType parseSshAuthType(ParameterMap map) throws CommandValidationException {
+        try {
+            String authType = map.getOne(PARAM_SSHAUTHTYPE);
+            if (authType == null) {
+                return null;
+            }
+            return SshAuthType.valueOf(authType);
+        } catch (Exception e) {
             throw new CommandValidationException(e);
         }
     }

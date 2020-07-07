@@ -49,6 +49,7 @@ import com.sun.enterprise.config.serverbeans.Domain;
 import com.sun.enterprise.universal.glassfish.TokenResolver;
 import com.sun.enterprise.util.StringUtils;
 import com.sun.enterprise.util.cluster.RemoteType;
+import com.sun.enterprise.util.cluster.SshAuthType;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.util.HashMap;
@@ -119,6 +120,12 @@ public class UpdateNodeCommand implements AdminCommand {
 
     @Param(name="sshnodehost", optional=true)
     String sshnodehost;
+ 
+    /**
+     * {@link SshAuthType} name
+     */
+    @Param(name = "sshauthtype", optional = true)
+    String sshAuthType;
 
     @Param(name="sshkeyfile", optional=true)
     String sshkeyfile;
@@ -203,7 +210,7 @@ public class UpdateNodeCommand implements AdminCommand {
     }
 
 
-    public void updateNodeElement(final String nodeName) throws TransactionFailure {
+    private void updateNodeElement(final String nodeName) throws TransactionFailure {
         LOG.log(Level.FINE, String.format("updateNodeElement(nodeName=%s)", nodeName));
         ConfigSupport.apply(new SingleConfigCode() {
             @Override
@@ -244,10 +251,11 @@ public class UpdateNodeCommand implements AdminCommand {
                             sshConnector.setSshHost(sshnodehost);
                         }
 
-                        if (sshuser != null || sshkeyfile != null || sshpassword != null) {
+                        if (sshAuthType != null || sshuser != null //
+                            || sshkeyfile != null || sshpassword != null || sshkeypassphrase != null) {
                             SshAuth sshAuth = sshConnector.getSshAuth();
                             if (sshAuth == null) {
-                                sshAuth = sshConnector.createChild(SshAuth.class);
+                               sshAuth = sshConnector.createChild(SshAuth.class);
                             } else {
                                 sshAuth = transaction.enroll(sshAuth);
                             }
@@ -255,15 +263,32 @@ public class UpdateNodeCommand implements AdminCommand {
                             if (sshuser != null) {
                                 sshAuth.setUserName(sshuser);
                             }
-                            if (sshkeyfile != null) {
-                                sshAuth.setKeyfile(sshkeyfile);
-                                sshAuth.setPassword(null);
-                            } else if (sshpassword != null) {
-                                sshAuth.setKeyfile(null);
-                                sshAuth.setPassword(sshpassword);
-                            }
                             if (sshkeypassphrase != null) {
                                 sshAuth.setKeyPassphrase(sshkeypassphrase);
+                            }
+                            if (sshAuthType == null) {
+                                // if both set, keyfile wins
+                                if (sshpassword != null) {
+                                    sshAuth.setKeyfile(null);
+                                    sshAuth.setPassword(sshpassword);
+                                }
+                                if (sshkeyfile != null) {
+                                    sshAuth.setKeyfile(sshkeyfile);
+                                    sshAuth.setPassword(null);
+                                }
+                            } else {
+                                if (SshAuthType.KEY.name().equals(sshAuthType)) {
+                                    // keyfile is set even if null, it would not be possible to
+                                    // return to default from UI otherwise
+                                    sshAuth.setKeyfile(sshkeyfile);
+                                    sshAuth.setPassword(null);
+                                } else if (SshAuthType.PASSWORD.name().equals(sshAuthType)) {
+                                    sshAuth.setKeyfile(null);
+                                    sshAuth.setKeyPassphrase(null);
+                                    if (sshpassword != null) {
+                                        sshAuth.setPassword(sshpassword);
+                                    }
+                                }
                             }
                             sshConnector.setSshAuth(sshAuth);
                         }
