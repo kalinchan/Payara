@@ -40,7 +40,7 @@
     holder.
 
 -->
-<!--"Portions Copyright [2016-2019] [Payara Foundation and/or its affiliates]" -->
+<!--"Portions Copyright [2016-2020] [Payara Foundation and/or its affiliates]" -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -198,7 +198,8 @@
         <gmbal.version>4.0.0</gmbal.version>
         <antlr.version>2.7.7</antlr.version>
         <jersey.version>2.25.1</jersey.version>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.9.10</jackson.version>
+        <jackson.databind.version>2.9.10.5</jackson.databind.version>
         <!-- SnakeYAML is required for the YAML conversion in Jackson -->
         <snakeyaml.version>1.23</snakeyaml.version>
         <jettison.version>1.3.8</jettison.version>
@@ -863,7 +864,7 @@ Parent is ${project.parent}</echo>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson.databind.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
