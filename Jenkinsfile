@@ -108,7 +108,7 @@ pipeline {
             steps{
                 echo '*#*#*#*#*#*#*#*#*#*#*#*#  Checking out EE7 tests  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#'
                 checkout changelog: false, poll: false, scm: [$class: 'GitSCM',
-                    branches: [[name: "*/jenkins"]],
+                    branches: [[name: "*/old-payara-versioning"]],
                     extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'EE7-Samples']],
                     userRemoteConfigs: [[url: "https://github.com/payara/patched-src-javaee7-samples.git"]]]
                 echo '*#*#*#*#*#*#*#*#*#*#*#*#  Checked out EE7 tests  *#*#*#*#*#*#*#*#*#*#*#*#*#*#*#'
