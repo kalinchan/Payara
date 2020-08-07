@@ -1962,7 +1962,7 @@ public class PayaraMicroImpl implements PayaraMicroBoot {
         }
         
         String userLogPropertiesFileStr = getProperty("payaramicro.logPropertiesFile");
-        if (userLogPropertiesFileStr  != null && !userLogPropertiesFileStr.isEmpty()) {
+        if (userLogPropertiesFileStr  != null && !userLogPropertiesFileStr.trim().isEmpty()) {
              setLogPropertiesFile(new File(userLogPropertiesFileStr));
         }
 
