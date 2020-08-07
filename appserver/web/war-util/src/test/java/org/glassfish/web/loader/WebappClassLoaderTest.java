@@ -55,6 +55,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.naming.resources.FileDirContext;
+import org.apache.naming.resources.WebDirContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,6 +99,7 @@ public class WebappClassLoaderTest {
 
         final CompletableFuture<Void> result = new CompletableFuture<>();
 
+        add(webappClassLoader);
         // Create the tasks to run
         Runnable lookupTask = new Runnable() {
             @Override
@@ -155,6 +157,39 @@ public class WebappClassLoaderTest {
         }
     }
 
+    @Test
+    public void check_findResources_thread_safety() throws Exception {
+        final WebappClassLoader webappClassLoader = new WebappClassLoader(getClass().getClassLoader(), null);
+        webappClassLoader.start();
+        webappClassLoader.setResources(new WebDirContext());
+        webappClassLoader.addRepository(junitJarFile.getAbsolutePath(), junitJarFile);
+
+        CompletableFuture<Void> result = new CompletableFuture<>();
+
+        // Create the tasks to run
+        Runnable lookupTask = waitAndDo(result, () -> findResources(webappClassLoader));
+        Runnable addTask = waitAndDo(result, () -> add(webappClassLoader));
+        Runnable closeTask = waitAndDo(result, () -> webappClassLoader.closeJARs(true));
+
+        try {
+            // Run the methods at the same time
+            for (int i = 0; i < EXECUTION_COUNT; i++) {
+                executor.execute(addTask);
+                executor.execute(lookupTask);
+                executor.execute(closeTask);
+            }
+
+            // Wait for tasks to execute
+            assertTrue("The tasks didn't finish in the allowed time.",
+                    latch.await(20, TimeUnit.SECONDS));
+
+            // Check to see if any tasks completed exceptionally
+            result.getNow(null);
+        } finally {
+            webappClassLoader.close();
+        }
+    }
+
     private void add(WebappClassLoader webappClassLoader) throws IOException {
         List<JarFile> jarFiles = findJarFiles();
 
@@ -172,6 +207,15 @@ public class WebappClassLoaderTest {
             for (JarEntry entry : Collections.list(jarFile.entries())) {
                 webappClassLoader.findResource(entry.getName());
                 // System.out.println("Looked up " + resourceEntry);
+                Thread.sleep(0, 100);
+            }
+        }
+    }
+
+    private void findResources(WebappClassLoader webappClassLoader) throws Exception {
+        for (JarFile jarFile : findJarFiles()) {
+            for (JarEntry entry : Collections.list(jarFile.entries())) {
+                webappClassLoader.findResources(entry.getName());
                 Thread.sleep(0, 100);
             }
         }
