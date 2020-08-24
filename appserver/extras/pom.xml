@@ -90,5 +90,16 @@
                 <module>embedded</module>
             </modules>
         </profile>
+        <profile>
+            <id>BuildDockerImages</id>
+            <activation>
+                <property>
+                    <name>BuildDockerImages</name>
+                </property>
+            </activation>
+            <modules>
+                <module>docker-images</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
