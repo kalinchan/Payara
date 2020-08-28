@@ -915,13 +915,16 @@ public abstract class GFLauncher {
             Process p = r.exec(javaExePath + " -version");
             p.waitFor();
             try (BufferedReader b = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
-                String line = b.readLine();
-                if (line == null) {
-                    return null;
-                }
-                Matcher m = JAVA_VERSION_PATTERN.matcher(line);
-                if (m.matches()) {
-                    return JDK.getVersion(m.group(1));
+                String line = "";
+                while (line != null) {
+                    line = b.readLine();
+                    if (line == null) {
+                        return null;
+                    }
+                    Matcher m = JAVA_VERSION_PATTERN.matcher(line);
+                    if (m.matches()) {
+                        return JDK.getVersion(m.group(1));
+                    }
                 }
             }
             return null;
