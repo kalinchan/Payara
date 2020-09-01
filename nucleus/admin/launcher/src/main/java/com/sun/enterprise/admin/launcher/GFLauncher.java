@@ -916,11 +916,7 @@ public abstract class GFLauncher {
             p.waitFor();
             try (BufferedReader b = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
                 String line = "";
-                while (line != null) {
-                    line = b.readLine();
-                    if (line == null) {
-                        return null;
-                    }
+                while ((line = b.readLine()) != null) {
                     Matcher m = JAVA_VERSION_PATTERN.matcher(line);
                     if (m.matches()) {
                         return JDK.getVersion(m.group(1));
