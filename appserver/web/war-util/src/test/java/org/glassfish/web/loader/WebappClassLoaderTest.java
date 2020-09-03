@@ -53,6 +53,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.naming.resources.FileDirContext;
 import org.apache.naming.resources.WebDirContext;
@@ -167,9 +169,34 @@ public class WebappClassLoaderTest {
         CompletableFuture<Void> result = new CompletableFuture<>();
 
         // Create the tasks to run
-        Runnable lookupTask = waitAndDo(result, () -> findResources(webappClassLoader));
-        Runnable addTask = waitAndDo(result, () -> add(webappClassLoader));
-        Runnable closeTask = waitAndDo(result, () -> webappClassLoader.closeJARs(true));
+        Runnable lookupTask = waitAndDo(result, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    findResources(webappClassLoader);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            
+        });
+        Runnable addTask = waitAndDo(result, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    add(webappClassLoader);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            
+        });
+        Runnable closeTask = waitAndDo(result, new Runnable() {
+            @Override
+            public void run() {
+                webappClassLoader.closeJARs(true);
+            }
+        });
 
         try {
             // Run the methods at the same time
@@ -227,6 +254,21 @@ public class WebappClassLoaderTest {
             jarFiles.add(new JarFile(junitJarFile));
         }
         return jarFiles;
+    }
+    
+    private Runnable waitAndDo(final CompletableFuture<Void> result, final Runnable task) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    task.run();
+                } catch (Exception ex) {
+                    result.completeExceptionally(ex);
+                } finally {
+                    latch.countDown();
+                }
+            }
+        };
     }
 
     private static class CompletableFuture<T> {
