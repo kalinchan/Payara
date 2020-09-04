@@ -53,8 +53,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.naming.resources.FileDirContext;
+import org.apache.naming.resources.WebDirContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -98,6 +101,7 @@ public class WebappClassLoaderTest {
 
         final CompletableFuture<Void> result = new CompletableFuture<>();
 
+        add(webappClassLoader);
         // Create the tasks to run
         Runnable lookupTask = new Runnable() {
             @Override
@@ -155,6 +159,64 @@ public class WebappClassLoaderTest {
         }
     }
 
+    @Test
+    public void check_findResources_thread_safety() throws Exception {
+        final WebappClassLoader webappClassLoader = new WebappClassLoader(getClass().getClassLoader(), null);
+        webappClassLoader.start();
+        webappClassLoader.setResources(new WebDirContext());
+        webappClassLoader.addRepository(junitJarFile.getAbsolutePath(), junitJarFile);
+
+        CompletableFuture<Void> result = new CompletableFuture<>();
+
+        // Create the tasks to run
+        Runnable lookupTask = waitAndDo(result, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    findResources(webappClassLoader);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            
+        });
+        Runnable addTask = waitAndDo(result, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    add(webappClassLoader);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            
+        });
+        Runnable closeTask = waitAndDo(result, new Runnable() {
+            @Override
+            public void run() {
+                webappClassLoader.closeJARs(true);
+            }
+        });
+
+        try {
+            // Run the methods at the same time
+            for (int i = 0; i < EXECUTION_COUNT; i++) {
+                executor.execute(addTask);
+                executor.execute(lookupTask);
+                executor.execute(closeTask);
+            }
+
+            // Wait for tasks to execute
+            assertTrue("The tasks didn't finish in the allowed time.",
+                    latch.await(20, TimeUnit.SECONDS));
+
+            // Check to see if any tasks completed exceptionally
+            result.getNow(null);
+        } finally {
+            webappClassLoader.close();
+        }
+    }
+
     private void add(WebappClassLoader webappClassLoader) throws IOException {
         List<JarFile> jarFiles = findJarFiles();
 
@@ -177,12 +239,36 @@ public class WebappClassLoaderTest {
         }
     }
 
+    private void findResources(WebappClassLoader webappClassLoader) throws Exception {
+        for (JarFile jarFile : findJarFiles()) {
+            for (JarEntry entry : Collections.list(jarFile.entries())) {
+                webappClassLoader.findResources(entry.getName());
+                Thread.sleep(0, 100);
+            }
+        }
+    }
+
     private List<JarFile> findJarFiles() throws IOException {
         List<JarFile> jarFiles = new LinkedList<>();
         for (int i = 0; i < 10; i++) {
             jarFiles.add(new JarFile(junitJarFile));
         }
         return jarFiles;
+    }
+    
+    private Runnable waitAndDo(final CompletableFuture<Void> result, final Runnable task) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    task.run();
+                } catch (Exception ex) {
+                    result.completeExceptionally(ex);
+                } finally {
+                    latch.countDown();
+                }
+            }
+        };
     }
 
     private static class CompletableFuture<T> {

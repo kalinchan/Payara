@@ -1234,23 +1234,26 @@ public class WebappClassLoader
         Vector<URL> result = new Vector<URL>();
 
         if (repositories != null) {
-            int repositoriesLength = repositories.length;
+            synchronized (jarFilesLock) {
+                // resources.lookup(fullPath) calls through WebDirContext the method getJarFiles().
+                // It returns the jarFiles but those should not be modified (like closed) so
+                // we protect changes using this synchronized block.
+                int repositoriesLength = repositories.length;
 
-            int i;
-
-            // Looking at the repositories
-            for (i = 0; i < repositoriesLength; i++) {
-                try {
-                    String fullPath = repositories[i] + name;
-                    resources.lookup(fullPath);
-                    // Note : Not getting an exception here means the resource was
-                    // found
+                // Looking at the repositories
+                for (int i = 0; i < repositoriesLength; i++) {
                     try {
-                        result.addElement(getURI(new File(files[i], name)));
-                    } catch (MalformedURLException e) {
-                        // Ignore
+                        String fullPath = repositories[i] + name;
+                        resources.lookup(fullPath);
+                        // Note : Not getting an exception here means the resource was
+                        // found
+                        try {
+                            result.add(getURI(new File(files[i], name)));
+                        } catch (MalformedURLException e) {
+                            // Ignore
+                        }
+                    } catch (NamingException e) {
                     }
-                } catch (NamingException e) {
                 }
             }
         }
