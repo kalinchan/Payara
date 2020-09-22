@@ -62,7 +62,7 @@ public class ExistStatusTests {
         Assert.assertEquals(execReturn, true, "Create jdbc connection pool failed ...");
     }
 
-    @Test(dependsOnMethods = { "createJDBCPool" })
+    @Test(dependsOnMethods = { "createJDBCPool" }, enabled = false) // Disabled temporarily - see QACI-445
     public void pingJDBCPool() throws Exception {
         // Extra ping of DerbyPool to create sun-appserv-samples DB.
         cmd = ASADMIN + " ping-connection-pool --port 4848 DerbyPool";
