@@ -29,6 +29,7 @@
         <module>openid</module>
         <module>asadmin</module>
         <module>microprofile-endpoints</module>
+        <module>logging</module>
     </modules>
 
     <dependencies>
@@ -239,6 +240,21 @@
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <environmentVariables>
+                                <GLASSFISH_HOME>${session.executionRootDirectory}/target/${payara.directory.name}</GLASSFISH_HOME>
+                            </environmentVariables>
+                            <!-- This needs tuning -->
+                            <systemPropertyVariables>
+                                <glassfishRemote_gfHome>${session.executionRootDirectory}/target/${payara.directory.name}</glassfishRemote_gfHome>
+                                <javaEEServer>payara-remote</javaEEServer>
+                                <payara.domain.name>${payara.domain.name}</payara.domain.name>
+                                <arquillian.launch>payara</arquillian.launch>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -278,6 +294,15 @@
                             <systemPropertyVariables>
                                 <javaEEServer>payara-remote</javaEEServer>
                                 <payara_domain>${payara_domain}</payara_domain>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <javaEEServer>payara-remote</javaEEServer>
+                                <payara.domain.name>${payara.domain.name}</payara.domain.name>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

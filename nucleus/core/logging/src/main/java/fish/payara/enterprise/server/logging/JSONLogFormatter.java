@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2017-2018 Payara Foundation and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017-2020 Payara Foundation and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -377,6 +377,30 @@ public class JSONLogFormatter extends Formatter implements LogEventBroadcaster {
             if (null != _delegate) {
                 _delegate.format(new StringBuilder()
                         .append(eventObject.toString()), level);
+            }
+
+            Object[] parameters = record.getParameters();
+            if (parameters != null) {
+                for (Object parameter : parameters) {
+                    if (parameter instanceof Map) {
+                        for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) parameter).entrySet()) {
+                            // there are implementations that allow <null> keys...
+                            String key;
+                            if (entry.getKey() != null) {
+                                key = entry.getKey().toString();
+                            } else {
+                                key = "null";
+                            }
+
+                            // also handle <null> values...
+                            if (entry.getValue() != null) {
+                                eventObject.add(key, entry.getValue().toString());
+                            } else {
+                                eventObject.add(key, "null");
+                            }
+                        }
+                    }
+                }
             }
 
             String logMessage = record.getMessage();
