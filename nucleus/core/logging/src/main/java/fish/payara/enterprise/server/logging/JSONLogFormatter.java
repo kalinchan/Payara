@@ -51,6 +51,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.ErrorManager;
@@ -219,7 +220,7 @@ public class JSONLogFormatter extends Formatter implements LogEventBroadcaster {
     private String jsonLogFormat(LogRecord record) {
         try {
             LogEventImpl logEvent = new LogEventImpl(); 
-            JSONObject eventObject = new JSONObject(); 
+            JSONObject eventObject = new JSONObject();
             
             /*
              * Create the timestamp field and append to object.
@@ -394,9 +395,9 @@ public class JSONLogFormatter extends Formatter implements LogEventBroadcaster {
 
                             // also handle <null> values...
                             if (entry.getValue() != null) {
-                                eventObject.add(key, entry.getValue().toString());
+                                eventObject.put(key, entry.getValue().toString());
                             } else {
-                                eventObject.add(key, "null");
+                                eventObject.put(key, "null");
                             }
                         }
                     }
