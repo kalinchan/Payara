@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-// Portions Copyright [2019] [Payara Foundation and/or its affiliates]
+// Portions Copyright [2019-2020] [Payara Foundation and/or its affiliates]
 
 package com.sun.enterprise.v3.admin.commands;
 
@@ -165,7 +165,7 @@ public final class DeleteJvmOptions implements AdminCommand, AdminCommandSecurit
         SingleConfigCode<JvmOptionBag> scc = new SingleConfigCode<JvmOptionBag>() {
             @Override
             public Object run(JvmOptionBag bag) throws PropertyVetoException, TransactionFailure {
-                List<String> jvmopts = new ArrayList<>(bag.getJvmOptions());
+                List<String> jvmopts = new ArrayList<>(bag.getJvmRawOptions());
                 int orig = jvmopts.size();
                 boolean removed = false;
                 Iterator<String> iter;
