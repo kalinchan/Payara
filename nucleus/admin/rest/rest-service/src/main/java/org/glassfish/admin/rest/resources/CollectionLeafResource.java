@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-// Portions Copyright [2016-2019] [Payara Foundation and/or its affiliates]
+// Portions Copyright [2016-2020] [Payara Foundation and/or its affiliates]
 
 package org.glassfish.admin.rest.resources;
 
@@ -46,6 +46,7 @@ import com.sun.enterprise.config.serverbeans.JavaConfig;
 import com.sun.enterprise.universal.xml.MiniXmlParser.JvmOption;
 import com.sun.enterprise.util.LocalStringManagerImpl;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +90,12 @@ public abstract class CollectionLeafResource extends AbstractResource {
     protected boolean isJvmOptions = false;
 
     public static final LocalStringManagerImpl localStrings = new LocalStringManagerImpl(CollectionLeafResource.class);
-  
+    
+    private static final String MIN_VERSION = "minVersion";
+    private static final String MAX_VERISON = "maxVersion";
+    private static final String VENDOR = "vendor";
+    private static final String JVM_OPTION = "jvmOption";
+
     /** Creates a new instance of xxxResource */
     public CollectionLeafResource() {
     }
@@ -228,12 +234,11 @@ public abstract class CollectionLeafResource extends AbstractResource {
         ar.setActionDescription(typeKey);
         if (isJvmOptions) {
             List<String> optionsEntity = getEntity();
-            List<ImmutableMap> optionsList = new ArrayList<>(optionsEntity.size());
+            List<Map> optionsList = new ArrayList<>(optionsEntity.size());
 
             for (String option : optionsEntity) {
                 JvmOption jvmOption = new JvmOption(option);
-                optionsList.add(ImmutableMap.of("minVersion", jvmOption.minVersion != null ? jvmOption.minVersion.toString() : "",
-                        "maxVersion", jvmOption.maxVersion != null ? jvmOption.maxVersion.toString() : "", "jvmOption", jvmOption.option));
+                optionsList.add(optionToMap(jvmOption));
             }
             ar.getExtraProperties().put("leafList", optionsList);
         } else {
@@ -247,6 +252,34 @@ public abstract class CollectionLeafResource extends AbstractResource {
 
         ResourceUtil.addMethodMetaData(ar, mmd);
         return new ActionReportResult(ar, optionsResult);
+    }
+    
+    private Map<String, String> optionToMap(JvmOption option){
+        Map<String, String> baseMap = new HashMap<>();        
+        if (option.vendor != null) {
+            if (option.minVersion != null) {
+                baseMap.put(MIN_VERSION, option.vendor + "-" + option.minVersion.toString());
+            } else {
+                baseMap.put(MIN_VERSION, option.vendor + "-");
+            }
+        } else {
+            if (option.minVersion != null) {
+                baseMap.put(MIN_VERSION, option.minVersion.toString());
+            } else {
+                baseMap.put(MIN_VERSION, "");
+            }
+
+        }
+
+        if (option.maxVersion != null) {
+            baseMap.put(MAX_VERISON, option.maxVersion.toString());
+        } else {
+            baseMap.put(MAX_VERISON, "");
+        }
+
+        baseMap.put(JVM_OPTION, option.option);
+        
+        return Collections.unmodifiableMap(baseMap);
     }
 
     protected Map<String, MethodMetaData> getMethodMetaData() {
