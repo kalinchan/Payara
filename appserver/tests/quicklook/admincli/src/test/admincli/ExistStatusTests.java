@@ -75,7 +75,7 @@ public class ExistStatusTests {
         Assert.assertEquals(execReturn, true, "Ping jdbc connection pool failed ...");
     }
 
-    @Test(dependsOnMethods = { "pingJDBCPool" }, enabled = true) // Disabled temporarily due to disabling of above test - see QACI-445
+    @Test(dependsOnMethods = { "pingJDBCPool" }, enabled = true)
     public void deleteJDBCPool() throws Exception {
         cmd = ASADMIN + " delete-jdbc-connection-pool --port 4848 QLJdbcPool";
         execReturn = RtExec.execute("deleteJDBCPool", cmd);
