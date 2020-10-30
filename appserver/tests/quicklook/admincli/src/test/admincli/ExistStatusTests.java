@@ -37,6 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2020] Payara Foundation and/or affiliates
 
 package test.admincli;
 
@@ -55,14 +56,14 @@ public class ExistStatusTests {
         // System.out.println(ASADMIN);
         cmd = ASADMIN + " create-jdbc-connection-pool --port 4848 "
                 + "--datasourceclassname=org.apache.derby.jdbc.ClientDataSource --property "
-                + "DatabaseName=sun-appserv-samples:PortNumber=1527:serverName=localhost:Password=APP:User=APP QLJdbcPool";
+                + "DatabaseName=sun-appserv-samples:PortNumber=1527:serverName=localhost:Password=APP:User=APP:connectionAttributes=\";create=true\" QLJdbcPool";
 
         execReturn = RtExec.execute("createJDBCPool", cmd);
         
         Assert.assertEquals(execReturn, true, "Create jdbc connection pool failed ...");
     }
 
-    @Test(dependsOnMethods = { "createJDBCPool" }, enabled = false) // Disabled temporarily - see QACI-445
+    @Test(dependsOnMethods = { "createJDBCPool" }, enabled = true) // Disabled temporarily - see QACI-445
     public void pingJDBCPool() throws Exception {
         // Extra ping of DerbyPool to create sun-appserv-samples DB.
         cmd = ASADMIN + " ping-connection-pool --port 4848 DerbyPool";
@@ -74,7 +75,7 @@ public class ExistStatusTests {
         Assert.assertEquals(execReturn, true, "Ping jdbc connection pool failed ...");
     }
 
-    @Test(dependsOnMethods = { "pingJDBCPool" }, enabled = false) // Disabled temporarily due to disabling of above test - see QACI-445
+    @Test(dependsOnMethods = { "pingJDBCPool" }, enabled = true) // Disabled temporarily due to disabling of above test - see QACI-445
     public void deleteJDBCPool() throws Exception {
         cmd = ASADMIN + " delete-jdbc-connection-pool --port 4848 QLJdbcPool";
         execReturn = RtExec.execute("deleteJDBCPool", cmd);
