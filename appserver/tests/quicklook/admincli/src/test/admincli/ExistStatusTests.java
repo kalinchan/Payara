@@ -63,7 +63,7 @@ public class ExistStatusTests {
         Assert.assertEquals(execReturn, true, "Create jdbc connection pool failed ...");
     }
 
-    @Test(dependsOnMethods = { "createJDBCPool" }, enabled = true)
+    @Test(dependsOnMethods = { "createJDBCPool" })
     public void pingJDBCPool() throws Exception {
         // Extra ping of DerbyPool to create sun-appserv-samples DB.
         cmd = ASADMIN + " ping-connection-pool --port 4848 DerbyPool";
@@ -75,7 +75,7 @@ public class ExistStatusTests {
         Assert.assertEquals(execReturn, true, "Ping jdbc connection pool failed ...");
     }
 
-    @Test(dependsOnMethods = { "pingJDBCPool" }, enabled = true)
+    @Test(dependsOnMethods = { "pingJDBCPool" })
     public void deleteJDBCPool() throws Exception {
         cmd = ASADMIN + " delete-jdbc-connection-pool --port 4848 QLJdbcPool";
         execReturn = RtExec.execute("deleteJDBCPool", cmd);
