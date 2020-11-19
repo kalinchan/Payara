@@ -69,7 +69,7 @@ import org.jvnet.hk2.config.TransactionFailure;
  * @author Gaurav Gupta
  */
 
-@ExecuteOn({RuntimeType.DAS, RuntimeType.INSTANCE})
+@ExecuteOn({RuntimeType.DAS})
 @TargetType(value = {CommandTarget.DAS, CommandTarget.STANDALONE_INSTANCE, CommandTarget.CLUSTER, CommandTarget.CONFIG})
 @Service(name = "set-metrics-configuration")
 @CommandLock(CommandLock.LockType.NONE)
