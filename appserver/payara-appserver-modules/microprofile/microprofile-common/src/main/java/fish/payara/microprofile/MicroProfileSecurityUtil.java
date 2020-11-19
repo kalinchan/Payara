@@ -44,13 +44,14 @@ import com.sun.enterprise.container.common.spi.util.ComponentEnvManager;
 import com.sun.enterprise.deployment.Application;
 import com.sun.enterprise.deployment.WebBundleDescriptor;
 import org.glassfish.deployment.common.SecurityRoleMapper;
+import org.glassfish.internal.api.Globals;
 import org.glassfish.security.common.Group;
 import org.glassfish.security.common.Role;
 
 public class MicroProfileSecurityUtil {
 
     public static void setGroupRoleMapping(String[] roleNames, String[] groupNames) {
-        ComponentEnvManager envManager = ConnectorRuntime.getRuntime().getComponentEnvManager();
+        ComponentEnvManager envManager = getComponentEnvManager();
         WebBundleDescriptor descriptor = (WebBundleDescriptor) envManager.getCurrentJndiNameEnvironment();
         Application application = descriptor.getApplication();
         if (application != null) {
@@ -60,6 +61,17 @@ public class MicroProfileSecurityUtil {
                     roleMapper.assignRole(new Group(groupNames[i]), new Role(roleNames[i]), descriptor);
                 }
             }
+        }
+    }
+
+    private static ComponentEnvManager getComponentEnvManager() {
+        try {
+            return ConnectorRuntime.getRuntime().getComponentEnvManager();
+        } catch (RuntimeException runtimeException) {
+            // ConnectorRuntime.getRuntime() throws a RuntimeException if the service hasn't been started yet, so try
+            // to start it by getting the service from service locator
+            Globals.getDefaultBaseServiceLocator().getService(ConnectorRuntime.class);
+            return ConnectorRuntime.getRuntime().getComponentEnvManager();
         }
     }
 }
