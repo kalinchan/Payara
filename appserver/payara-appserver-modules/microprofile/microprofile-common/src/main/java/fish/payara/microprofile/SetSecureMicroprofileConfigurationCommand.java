@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- *    Copyright (c) [2019] Payara Foundation and/or its affiliates. All rights reserved.
+ *    Copyright (c) [2019-2020] Payara Foundation and/or its affiliates. All rights reserved.
  * 
  *     The contents of this file are subject to the terms of either the GNU
  *     General Public License Version 2 only ("GPL") or the Common Development
@@ -44,6 +44,8 @@ import static fish.payara.microprofile.Constants.DEFAULT_GROUP_NAME;
 import static fish.payara.microprofile.Constants.DEFAULT_USER_NAME;
 import javax.inject.Inject;
 import javax.security.auth.Subject;
+
+import com.sun.enterprise.util.StringUtils;
 import org.glassfish.api.ActionReport;
 import org.glassfish.api.Param;
 import org.glassfish.api.admin.AdminCommand;
@@ -82,6 +84,9 @@ public abstract class SetSecureMicroprofileConfigurationCommand implements Admin
 
         ParameterMap parameters = new ParameterMap();
         parameters.add("authrealmname", securityService.getDefaultRealm());
+        if (StringUtils.ok(target)) {
+            parameters.add("target", target);
+        }
 
         invocation.parameters(parameters).execute();
 
@@ -90,7 +95,6 @@ public abstract class SetSecureMicroprofileConfigurationCommand implements Admin
                 return true;
             }
         }
-
         return false;
     }
 

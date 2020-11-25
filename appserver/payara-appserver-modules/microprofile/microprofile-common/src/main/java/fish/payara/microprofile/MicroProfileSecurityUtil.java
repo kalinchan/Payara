@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- *    Copyright (c) [2019] Payara Foundation and/or its affiliates. All rights reserved.
+ *    Copyright (c) [2019-2020] Payara Foundation and/or its affiliates. All rights reserved.
  * 
  *     The contents of this file are subject to the terms of either the GNU
  *     General Public License Version 2 only ("GPL") or the Common Development
@@ -44,13 +44,14 @@ import com.sun.enterprise.container.common.spi.util.ComponentEnvManager;
 import com.sun.enterprise.deployment.Application;
 import com.sun.enterprise.deployment.WebBundleDescriptor;
 import org.glassfish.deployment.common.SecurityRoleMapper;
+import org.glassfish.internal.api.Globals;
 import org.glassfish.security.common.Group;
 import org.glassfish.security.common.Role;
 
 public class MicroProfileSecurityUtil {
 
     public static void setGroupRoleMapping(String[] roleNames, String[] groupNames) {
-        ComponentEnvManager envManager = ConnectorRuntime.getRuntime().getComponentEnvManager();
+        ComponentEnvManager envManager = getComponentEnvManager();
         WebBundleDescriptor descriptor = (WebBundleDescriptor) envManager.getCurrentJndiNameEnvironment();
         Application application = descriptor.getApplication();
         if (application != null) {
@@ -60,6 +61,17 @@ public class MicroProfileSecurityUtil {
                     roleMapper.assignRole(new Group(groupNames[i]), new Role(roleNames[i]), descriptor);
                 }
             }
+        }
+    }
+
+    private static ComponentEnvManager getComponentEnvManager() {
+        try {
+            return ConnectorRuntime.getRuntime().getComponentEnvManager();
+        } catch (RuntimeException runtimeException) {
+            // ConnectorRuntime.getRuntime() throws a RuntimeException if the service hasn't been started yet, so try
+            // to start it by getting the service from service locator
+            Globals.getDefaultBaseServiceLocator().getService(ConnectorRuntime.class);
+            return ConnectorRuntime.getRuntime().getComponentEnvManager();
         }
     }
 }
