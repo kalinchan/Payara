@@ -40,7 +40,7 @@
     holder.
 
 -->
-<!-- Portions Copyright [2016-2020] [Payara Foundation and/or its affiliates] -->
+<!-- Portions Copyright [2016-2021] [Payara Foundation and/or its affiliates] -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -63,7 +63,7 @@
   
     <properties>
         <jms-api.version>2.0.1</jms-api.version>
-        <jsp-api.version>2.3.3</jsp-api.version>
+        <jsp-api.version>2.3.3.payara-p1</jsp-api.version>
         <jsp-impl.version>2.3.4</jsp-impl.version>
         <jstl-api.version>1.2.2</jstl-api.version>
         <jstl-impl.version>1.2.5</jstl-impl.version>
