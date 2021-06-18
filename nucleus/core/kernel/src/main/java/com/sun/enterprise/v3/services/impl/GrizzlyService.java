@@ -36,6 +36,8 @@
  * and therefore, elected the GPL Version 2 license, then the option applies
  * only if the new code is made subject to such option by the copyright
  * holder.
+ *
+ * Portions Copyright [2018-2021] [Payara Foundation and/or its affiliates]
  */
 
 package com.sun.enterprise.v3.services.impl;
@@ -81,6 +83,7 @@ import org.glassfish.api.StartupRunLevel;
 import org.glassfish.api.admin.ServerEnvironment;
 import org.glassfish.api.container.EndpointRegistrationException;
 import org.glassfish.api.container.RequestDispatcher;
+import org.glassfish.api.container.Adapter;
 import org.glassfish.api.deployment.ApplicationContainer;
 import org.glassfish.api.event.EventListener;
 import org.glassfish.api.event.EventTypes;
@@ -110,6 +113,7 @@ import org.jvnet.hk2.config.ConfigBeanProxy;
 import org.jvnet.hk2.config.ConfigSupport;
 import org.jvnet.hk2.config.ObservableBean;
 import org.jvnet.hk2.config.Transactions;
+import org.glassfish.api.container.GrizzlyNetworkListenerRestartAdapter;
 
 /**
  * The Network Service is responsible for starting grizzly and register the
@@ -135,7 +139,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
 
     @Inject
     Events events;
-    
+
     private static final Logger LOGGER = KernelLoggerInfo.getLogger();
 
     private final Collection<NetworkProxy> proxies = new LinkedBlockingQueue<NetworkProxy>();
@@ -157,7 +161,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
      */
     private final ReentrantReadWriteLock mapperLock =
             new ReentrantReadWriteLock();
-        
+
     private DynamicConfigListener configListener;
 
     // Future to be set on server READY_EVENT
@@ -177,21 +181,21 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
      * @param proxy new proxy to be added
      */
     public void addNetworkProxy(NetworkProxy proxy) {
-        proxies.add(proxy);               
+        proxies.add(proxy);
     }
-    
-    
+
+
     /**
      * Remove the proxy from our list of proxies by listener.
      * @param listener removes the proxy associated with the specified listener
      * @return <tt>true</tt>, if proxy removed,
      *         <tt>false</tt> if no proxy was associated with the specified listener.
-     */    
+     */
     public boolean removeNetworkProxy(NetworkListener listener) {
         return removeNetworkProxy(lookupNetworkProxy(listener));
     }
 
-    
+
     /**
      * Remove the proxy from our list of proxies by id.
      * @return <tt>true</tt>, if proxy on specified port was removed,
@@ -226,7 +230,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, KernelLoggerInfo.grizzlyStopProxy, e);
             }
-            
+
             proxy.destroy();
             return true;
         }
@@ -245,7 +249,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
 
     /**
      * Lookup {@link GrizzlyProxy}, which corresponds to the {@link NetworkListener}.
-     * 
+     *
      * @param listener {@link NetworkListener}.
      * @return {@link GrizzlyProxy}, or <tt>null</tt>, if correspondent {@link GrizzlyProxy} wasn't found.
      */
@@ -273,7 +277,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
         }
 
         final String listenerId = listener.getName();
-        
+
         for (NetworkProxy p : proxies) {
             if (p instanceof GrizzlyProxy) {
                 GrizzlyProxy grizzlyProxy = (GrizzlyProxy) p;
@@ -286,16 +290,16 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
         }
 
         return null;
-        
+
     }
 
     /**
      * Restart {@link NetworkListener}.
-     * 
+     *
      * @param networkListenerName
      * @param timeout restart timeout, if timeout value is negative - then no timeout will be applied.
      * @param timeUnit restart timeout unit
-     * 
+     *
      * @throws TimeoutException thrown if timeout had expired before server succeeded to restart
      * @throws IOException
      */
@@ -305,20 +309,20 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
                 config.getNetworkConfig().getNetworkListener(networkListenerName),
                 timeout, timeUnit);
     }
-    
+
     /**
      * Restart {@link NetworkListener}.
-     * 
+     *
      * @param networkListener {@link NetworkListener}
      * @param timeout restart timeout, if timeout value is negative - then no timeout will be applied.
      * @param timeUnit restart timeout unit
-     * 
+     *
      * @throws TimeoutException thrown if timeout had expired before server succeeded to restart
      * @throws IOException
      */
     public void restartNetworkListener(NetworkListener networkListener,
             long timeout, TimeUnit timeUnit) throws IOException, TimeoutException {
-        
+
         // Restart GrizzlyProxy on the address/port
         // Address/port/id could have been changed - so try to find
         // corresponding proxy both ways
@@ -357,7 +361,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
                     networkListener.getName());
             return;
         }
-        
+
         try {
             if (timeout <= 0) {
                 future.get();
@@ -387,10 +391,10 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
         } catch (InterruptedException e) {
             throw new IOException(e);
         }
-        
+
         registerContainerAdapters();
     }
-    
+
     /**
      * Is there any {@link MapperUpdateListener} registered?
      */
@@ -400,7 +404,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
 
     /**
      * Adds {@link MapperUpdateListener} to listeners queue.
-     * 
+     *
      * @param listener the listener to be added.
      * @return <tt>true</tt>, if listener was successfully added,
      * or <tt>false</tt> otherwise.
@@ -422,7 +426,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
 
     /**
      * Notify all {@link MapperUpdateListener}s about update happened.
-     * 
+     *
      * @param networkListener {@link NetworkListener}, which {@link Mapper} got changed
      * @param mapper new {@link Mapper} value
      */
@@ -441,12 +445,12 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
     public ReentrantReadWriteLock obtainMapperLock() {
         return mapperLock;
     }
-    
+
     /**
      * Gets the logger.
      *
      * @return the logger
-     */   
+     */
     public Logger getLogger() {
         return LOGGER;
     }
@@ -456,7 +460,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
      * Gets the habitat.
      *
      * @return the habitat
-     */   
+     */
     public ServiceLocator getHabitat() {
         return serviceLocator;
     }
@@ -475,7 +479,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
     /**
      * Add the {@link Callable} listener, which will be notified once server
      * state switches to "SERVER_READY".
-     * 
+     *
      * @param listener {@link Callable} listener.
      */
     final void addServerReadyListener(final Callable<Void> listener) {
@@ -484,10 +488,10 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
                 listener.call();
             } catch (Exception ignored) {
             }
-            
+
             return;
         }
-        
+
         serverReadyListeners.add(listener);
 
         if (serverReadyFuture.isDone() && serverReadyListeners.remove(listener)) {
@@ -497,17 +501,17 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
             }
         }
     }
-    
+
     /**
      * Removes the {@link Callable} listener, which will be notified once server
      * state switches to "SERVER_READY".
-     * 
+     *
      * @param listener {@link Callable} listener.
      */
     final boolean removeServerListener(final Callable<Void> listener) {
         return serverReadyListeners.remove(listener);
     }
-    
+
     /**
      * Method is invoked each time Glassfish state changes.
      */
@@ -515,7 +519,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
     public void event(@RestrictTo(EventTypes.SERVER_READY_NAME) EventListener.Event event) {
         if (event.is(EventTypes.SERVER_READY)) {
             serverReadyFuture.result(Boolean.TRUE);
-            
+
             Callable<Void> listener;
             while((listener = serverReadyListeners.poll()) != null) {
                 try {
@@ -525,7 +529,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
             }
         }
     }
-    
+
     /**
      * The component has been injected with any dependency and
      * will be placed into commission by the subsystem.
@@ -533,7 +537,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
     @Override
     public void postConstruct() {
         events.register(this);
-        
+
         final NetworkConfig networkConfig = config.getNetworkConfig();
         configListener = new DynamicConfigListener(config, LOGGER);
         ObservableBean bean = (ObservableBean) ConfigSupport.getImpl(networkConfig.getNetworkListeners());
@@ -545,7 +549,6 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
 
         try {
             boolean isAtLeastOneProxyStarted = false;
-            
             futures = new ArrayList<Future<Result<Thread>>>();
 
             // Record how long it took for the listeners to start up
@@ -561,7 +564,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
             }
 
             if (isAtLeastOneProxyStarted) {
-                
+
                 // Get the startup time
                 final long startupTime = System.currentTimeMillis() - startTime;
 
@@ -586,7 +589,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
                             new Object[] {proxy.getPort(), proxyStopException});
                 }
             }
-            
+
             throw e;
         }
 
@@ -677,10 +680,10 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
                         new IllegalStateException("Unexpected error")));
                 future = errorFuture;
             }
-            
+
             futures.add(future);
         }
-        
+
         return future;
     }
 
@@ -695,8 +698,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
      * Registers all proxies
      */
     void registerContainerAdapters() {
-        for (org.glassfish.api.container.Adapter subAdapter :
-            serviceLocator.<org.glassfish.api.container.Adapter>getAllServices(org.glassfish.api.container.Adapter.class)) {
+        for (Adapter subAdapter : serviceLocator.getAllServices(Adapter.class)) {
             //@TODO change EndportRegistrationException processing if required
             try {
                 if (!subAdapter.isRegistered()) {
@@ -704,13 +706,16 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
                     subAdapter.setRegistered(true);
                 }
             } catch(EndpointRegistrationException e) {
-                LOGGER.log(Level.WARNING, 
+                LOGGER.log(Level.WARNING,
                         KernelLoggerInfo.grizzlyEndpointRegistration, e);
             }
         }
+        for (GrizzlyNetworkListenerRestartAdapter restartAdapter : serviceLocator.getAllServices(GrizzlyNetworkListenerRestartAdapter.class)) {
+            restartAdapter.restartEndpoints();
+        }
     }
-    
-    
+
+
     /**
      * The component is about to be removed from commission
      */
@@ -754,10 +759,10 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
         ApplicationContainer container, String virtualServers) throws EndpointRegistrationException {
         List<String> virtualServerList;
         if (virtualServers == null) {
-            virtualServerList = 
+            virtualServerList =
                 config.getHttpService().getNonAdminVirtualServerList();
         } else{
-            virtualServerList = 
+            virtualServerList =
                 StringUtils.parseStringList(virtualServers, ",");
         }
         registerEndpoint(contextRoot, virtualServerList, endpointAdapter, container);
@@ -803,7 +808,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
     public void registerEndpoint(final Endpoint endpoint) throws EndpointRegistrationException {
         final InetAddress address = endpoint.getAddress();
         final int port = endpoint.getPort();
-        
+
         for (NetworkProxy proxy : proxies) {
             if (proxy.getPort() == port && proxy.getAddress().equals(address)) {
                 proxy.registerEndpoint(endpoint);
@@ -823,7 +828,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
      * Removes the context-root from our list of endpoints.
      */
     @Override
-    public void unregisterEndpoint(String contextRoot, 
+    public void unregisterEndpoint(String contextRoot,
             ApplicationContainer app) throws EndpointRegistrationException {
         for (NetworkProxy proxy : proxies) {
             proxy.unregisterEndpoint(contextRoot, app);
@@ -831,7 +836,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
     }
 
     /**
-     * Probe provider that implements each probe provider method as a 
+     * Probe provider that implements each probe provider method as a
      * no-op.
      */
     @SuppressWarnings({"UnusedDeclaration"})
@@ -863,14 +868,14 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
         registerEndpoint(endpoint);
     }
 
-    // get the ports from the http listeners that are associated with 
+    // get the ports from the http listeners that are associated with
     // the virtual servers
     private List<AddressInfo> getAddressInfoFromVirtualServers(Collection<String> virtualServers) {
         List<AddressInfo> addressInfos = new ArrayList<AddressInfo>();
         List<NetworkListener> networkListenerList = config.getNetworkConfig().getNetworkListeners().getNetworkListener();
 
         for (String vs : virtualServers) {
-            VirtualServer virtualServer = 
+            VirtualServer virtualServer =
                 config.getHttpService().getVirtualServerByName(vs);
             if (virtualServer == null) {
                 // non-existent virtual server
@@ -892,7 +897,7 @@ public class GrizzlyService implements RequestDispatcher, PostConstruct, PreDest
                     }
                 }
             }
-        } 
+        }
         return addressInfos;
     }
 
