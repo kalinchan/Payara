@@ -55,10 +55,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
-
+// Portions Copyright [2016-2021] [Payara Foundation and/or its affiliates]
 package org.apache.catalina.core;
-
 
 import org.apache.catalina.*;
 import org.apache.catalina.valves.ValveBase;
@@ -79,27 +77,19 @@ import org.glassfish.grizzly.utils.Charsets;
  * @author Craig R. McClanahan
  * @version $Revision: 1.19 $ $Date: 2007/05/05 05:31:54 $
  */
-
 final class StandardContextValve
-    extends ValveBase {
-
+        extends ValveBase {
 
     // ----------------------------------------------------- Instance Variables
-
-
     /**
      * The descriptive information related to this implementation.
      */
-    private static final String info =
-        "org.apache.catalina.core.StandardContextValve/1.0";
-
+    private static final String info
+            = "org.apache.catalina.core.StandardContextValve/1.0";
 
     private StandardContext context = null;
 
-
     // ------------------------------------------------------------- Properties
-
-
     /**
      * Return descriptive information about this Valve implementation.
      */
@@ -109,13 +99,10 @@ final class StandardContextValve
 
     }
 
-
     // --------------------------------------------------------- Public Methods
-
-
     /**
      * Cast to a StandardContext right away, as it will be needed later.
-     * 
+     *
      * @see org.apache.catalina.Contained#setContainer(org.apache.catalina.Container)
      */
     public void setContainer(Container container) {
@@ -124,7 +111,6 @@ final class StandardContextValve
             context = (StandardContext) container;
         }
     }
-
 
     /**
      * Select the appropriate child Wrapper to process this request,
@@ -140,7 +126,7 @@ final class StandardContextValve
      */
     @Override
     public int invoke(Request request, Response response)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
 
         Wrapper wrapper = preInvoke(request, response);
         if (wrapper == null) {
@@ -149,10 +135,10 @@ final class StandardContextValve
 
         /* GlassFish 1343
         wrapper.getPipeline().invoke(request, response);
-        */
+         */
         // START GlassFish 1343
-        if (wrapper.getPipeline().hasNonBasicValves() ||
-                wrapper.hasCustomPipeline()) {
+        if (wrapper.getPipeline().hasNonBasicValves()
+                || wrapper.hasCustomPipeline()) {
             wrapper.getPipeline().invoke(request, response);
         } else {
             GlassFishValve basic = wrapper.getPipeline().getBasic();
@@ -164,15 +150,14 @@ final class StandardContextValve
         // END GlassFish 1343
 
         return END_PIPELINE;
-    } 
-
+    }
 
     /**
      * Tomcat style invocation.
      */
     @Override
     public void invoke(org.apache.catalina.connector.Request request,
-                       org.apache.catalina.connector.Response response)
+            org.apache.catalina.connector.Response response)
             throws IOException, ServletException {
 
         Wrapper wrapper = preInvoke(request, response);
@@ -182,10 +167,10 @@ final class StandardContextValve
 
         /* GlassFish 1343
         wrapper.getPipeline().invoke(request, response);
-        */
+         */
         // START GlassFish 1343
-        if (wrapper.getPipeline().hasNonBasicValves() ||
-                wrapper.hasCustomPipeline()) {
+        if (wrapper.getPipeline().hasNonBasicValves()
+                || wrapper.hasCustomPipeline()) {
             wrapper.getPipeline().invoke(request, response);
         } else {
             GlassFishValve basic = wrapper.getPipeline().getBasic();
@@ -199,12 +184,10 @@ final class StandardContextValve
         postInvoke(request, response);
     }
 
-
     @Override
     public void postInvoke(Request request, Response response)
             throws IOException, ServletException {
     }
-
 
     /**
      * Report a "not found" error for the specified resource.  FIXME:  We
@@ -225,7 +208,6 @@ final class StandardContextValve
         }
 
     }
-
 
     /**
      * Log a message on the Logger associated with our Container (if any)
@@ -272,8 +254,7 @@ final class StandardContextValve
                 "]: " + message, t);
         }
     }
-    */
-
+     */
     /**
      * resolves '.' and '..' elements in the path
      * if there are too many, making a path negative, returns null
@@ -281,14 +262,14 @@ final class StandardContextValve
      * @param path to be normalized
      * @return normalized path or null
      */
-    private static String normalize(String path) {
+    protected String normalize(String path) {
         if (path == null) {
             return null;
         }
 
         String rv = path;
         // starts with a double-slash
-        if(rv.indexOf("//") == 0) {
+        if (rv.indexOf("//") == 0) {
             rv = rv.replace("//", "/");
         }
 
@@ -310,8 +291,35 @@ final class StandardContextValve
             rv = rv.substring(0, index2) + rv.substring(idx + 3);
         }
 
+        // Resolve occurrences of "/./" example if the path looks like /app/./some/./something/./my.jsp
+        //then after processing should look like /app/some/something/my.jsp
+        rv = evaluateNormalizedPathWithSinglePoint(rv);
+
+        //if the path don't start with / then include it
+        if (!rv.startsWith("/")) {
+            rv = "/" + rv;
+        }
+
         // Return the normalized path that we have completed
         return rv;
+    }
+
+    /**
+     * this method helps to evaluate the element "/./" on the path
+     *
+     * @param path to be normalized
+     * @return normalized path
+     */
+    private String evaluateNormalizedPathWithSinglePoint(String path) {
+        // Resolve occurrences of "/./" in the normalized path
+        while (true) {
+            int idx = path.indexOf("/./");
+            if (idx < 0) {
+                break;
+            }
+            path = path.substring(0, idx) + path.substring(idx + 2);
+        }
+        return path;
     }
 
     private Wrapper preInvoke(Request request, Response response) {
@@ -320,7 +328,7 @@ final class StandardContextValve
         HttpRequest hreq = (HttpRequest) request;
         // START CR 6415120
         if (request.getCheckRestrictedResources()) {
-        // END CR 6415120
+            // END CR 6415120
             String requestPath = normalize(hreq.getRequestPathMB().toString(Charsets.UTF8_CHARSET));
             if ((requestPath == null)
                     || (requestPath.toUpperCase().startsWith("/META-INF/", 0))
@@ -330,7 +338,7 @@ final class StandardContextValve
                 notFound((HttpServletResponse) response.getResponse());
                 return null;
             }
-        // START CR 6415120
+            // START CR 6415120
         }
         // END CR 6415120
 
@@ -347,9 +355,9 @@ final class StandardContextValve
 
         // Reloading will have stopped the old webappclassloader and
         // created a new one
-        if (reloaded &&
-                context.getLoader() != null &&
-                context.getLoader().getClassLoader() != null) {
+        if (reloaded
+                && context.getLoader() != null
+                && context.getLoader().getClassLoader() != null) {
             Thread.currentThread().setContextClassLoader(
                     context.getLoader().getClassLoader());
         }
