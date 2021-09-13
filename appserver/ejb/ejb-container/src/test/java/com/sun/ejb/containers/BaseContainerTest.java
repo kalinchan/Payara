@@ -61,15 +61,15 @@ public class BaseContainerTest extends TestCase {
     public void createEmptyContextAndInterceptorsWithoutNullPointerExceptionTest() throws Exception {
         boolean thrownExceptionFlag = false;
 
-        doCallRealMethod().when(baseContainer).createEmptyContextAndInterceptors(ejbContextImpl);
+        doCallRealMethod().when(baseContainer).injectEjbInstance(ejbContextImpl);
 
         try {
-            baseContainer.createEmptyContextAndInterceptors(ejbContextImpl);
+            baseContainer.injectEjbInstance(ejbContextImpl);
         } catch(NullPointerException e) {
             thrownExceptionFlag = true;
         }
         assertFalse(thrownExceptionFlag);
-        verify(baseContainer, times(1)).createEmptyContextAndInterceptors(ejbContextImpl);
+        verify(baseContainer, times(1)).injectEjbInstance(ejbContextImpl);
     }
 
     @Test
