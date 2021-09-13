@@ -58,7 +58,7 @@ public class BaseContainerTest extends TestCase {
     private BaseContainer baseContainer;
 
     @Test
-    public void createEmptyContextAndInterceptorsWithoutNullPointerExceptionTest() throws Exception {
+    public void injectEjbInstanceWithoutNullPointerExceptionTest() throws Exception {
         boolean thrownExceptionFlag = false;
 
         doCallRealMethod().when(baseContainer).injectEjbInstance(ejbContextImpl);
