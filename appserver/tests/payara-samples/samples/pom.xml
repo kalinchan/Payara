@@ -30,6 +30,7 @@
         <module>asadmin</module>
         <module>microprofile-endpoints</module>
         <module>logging</module>
+        <module>corba-read-timeout</module>
     </modules>
 
     <dependencies>
