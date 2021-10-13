@@ -38,6 +38,8 @@
         <payara_domain>domain1</payara_domain>
 
         <payara.directory.name>payara41</payara.directory.name>
+
+        <nimbus-jose-jwt.version>8.20</nimbus-jose-jwt.version>
     </properties>
 
 
