@@ -51,11 +51,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,9 +96,12 @@ public class RWLockDataStructure implements DataStructure {
         for (int i = 0; i < count && canGrow(); i++) {
             try {
                 final ResourceHandle handle = handler.createResource(allocator);
-                doLockSecured(() -> {
-                    allResources.add(handle);
-                    freeResources.offerLast(handle);
+                doLockSecured(new Runnable() {
+                    @Override
+                    public void run() {
+                        allResources.add(handle);
+                        freeResources.offerLast(handle);
+                    }
                 }, writeLock);
                 numResAdded++;
             } catch (Exception e) {
@@ -112,7 +113,12 @@ public class RWLockDataStructure implements DataStructure {
     }
 
     private boolean canGrow() {
-        int capacity = remainingCapacity.getAndUpdate((x) -> x > 0 ? x - 1 : 0);
+        int capacity = addToRemainingCapacity(new IntUnaryOperator() {
+            @Override
+            public int applyAsInt(int x) {
+                return x > 0 ? x - 1 : 0;
+            }
+        });
         return capacity > 0;
     }
 
@@ -124,26 +130,32 @@ public class RWLockDataStructure implements DataStructure {
      * {@inheritDoc}
      */
     public ResourceHandle getResource() {
-        return doLockSecured(() -> {
-            final ResourceHandle resourceHandle = freeResources.pollFirst();
-            if (resourceHandle != null) {
-                resourceHandle.setBusy(true);
+        return doLockSecured(new Supplier<ResourceHandle>() {
+            @Override
+            public ResourceHandle get() {
+                final ResourceHandle resourceHandle = freeResources.pollFirst();
+                if (resourceHandle != null) {
+                    resourceHandle.setBusy(true);
+                }
+                return resourceHandle;
             }
-            return resourceHandle;
         }, writeLock);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void removeResource(ResourceHandle resource) {
-        boolean removed = doLockSecured(() -> {
-            final boolean removedResource = allResources.remove(resource);
-            if (removedResource) {
-                freeResources.remove(resource);
-                increaseRemainingCapacity();
+    public void removeResource(final ResourceHandle resource) {
+        boolean removed = doLockSecured(new Supplier<Boolean>() {
+            @Override
+            public Boolean get() {
+                final boolean removedResource = allResources.remove(resource);
+                if (removedResource) {
+                    freeResources.remove(resource);
+                    increaseRemainingCapacity();
+                }
+                return removedResource;
             }
-            return removedResource;
         }, writeLock);
         if (removed) {
             handler.deleteResource(resource);
@@ -154,9 +166,12 @@ public class RWLockDataStructure implements DataStructure {
      * {@inheritDoc}
      */
     public void returnResource(final ResourceHandle resource) {
-        doLockSecured(() -> {
-            resource.setBusy(false);
-            freeResources.offerFirst(resource);
+        doLockSecured(new Runnable() {
+            @Override
+            public void run() {
+                resource.setBusy(false);
+                freeResources.offerFirst(resource);
+            }
         }, writeLock);
     }
 
@@ -164,7 +179,13 @@ public class RWLockDataStructure implements DataStructure {
      * {@inheritDoc}
      */
     public int getFreeListSize() {
-        return doLockSecured(freeResources::size, readLock);
+        return doLockSecured(new Supplier<Integer>() {
+            @Override
+            public Integer get() {
+                return freeResources.size();
+            }
+        }, readLock
+        );
     }
 
     /**
@@ -172,13 +193,16 @@ public class RWLockDataStructure implements DataStructure {
      */
     public void removeAll() {
         final List<ResourceHandle> removedResources = new ArrayList<>();
-        doLockSecured(() -> {
-            removedResources.addAll(allResources);
-            allResources.clear();
-            freeResources.clear();
-            remainingCapacity.set(maxSize);
+        doLockSecured(new Runnable() {
+            @Override
+            public void run() {
+                removedResources.addAll(allResources);
+                allResources.clear();
+                freeResources.clear();
+                remainingCapacity.set(maxSize);
+            }
         }, writeLock);
-        for(ResourceHandle resourceHandle : removedResources) {
+        for (ResourceHandle resourceHandle : removedResources) {
             handler.deleteResource(resourceHandle);
         }
     }
@@ -187,7 +211,12 @@ public class RWLockDataStructure implements DataStructure {
      * {@inheritDoc}
      */
     public int getResourcesSize() {
-        return doLockSecured(allResources::size, readLock);
+        return doLockSecured(new Supplier<Integer>() {
+            @Override
+            public Integer get() {
+                return allResources.size();
+            }
+        }, readLock);
     }
 
     /**
@@ -196,13 +225,21 @@ public class RWLockDataStructure implements DataStructure {
      *
      * @param maxSize
      */
-    public void setMaxSize(int maxSize) {
-        doLockSecured(() -> {
-            int delta = maxSize - this.maxSize;
-            remainingCapacity.getAndUpdate(x -> x + delta);
-            // remaining capacity might be negative after this, but its up to ConnectionPool to remove some of the resources
-            // before asking for new ones
-            this.maxSize = maxSize;
+    public void setMaxSize(final int maxSize) {
+        doLockSecured(new Runnable() {
+            @Override
+            public void run() {
+                final int delta = maxSize - RWLockDataStructure.this.maxSize;
+                addToRemainingCapacity(new IntUnaryOperator() {
+                    @Override
+                    public int applyAsInt(int x) {
+                        return x + delta;
+                    }
+                });
+                // remaining capacity might be negative after this, but its up to ConnectionPool to remove some of the resources
+                // before asking for new ones
+                RWLockDataStructure.this.maxSize = maxSize;
+            }
         }, writeLock);
     }
 
@@ -229,4 +266,22 @@ public class RWLockDataStructure implements DataStructure {
         }
     }
 
+    // Pre Java-8 stuff
+    private interface IntUnaryOperator {
+        int applyAsInt(int operand);
+    }
+
+    private interface Supplier<T> {
+        T get();
+    }
+
+    private int addToRemainingCapacity(IntUnaryOperator op) {
+        while (true) {
+            int currentValue = remainingCapacity.get();
+            int newValue = op.applyAsInt(currentValue);
+            if (remainingCapacity.compareAndSet(currentValue, newValue)) {
+                return newValue;
+            }
+        }
+    }
 }
