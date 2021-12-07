@@ -120,7 +120,7 @@
         <json-smart.version>2.3</json-smart.version>
         
         <uc-pkg-bootstrap.version>1.122-57.2889</uc-pkg-bootstrap.version>
-        <webservices.version>2.3.2-b608.payara-p4</webservices.version>
+        <webservices.version>2.3.2-b608.payara-p5</webservices.version>
         <jsr181-api.version>1.0-MR1</jsr181-api.version>
         <jcip-annotations.version>1.0-1</jcip-annotations.version>
         <stax2-api.version>3.1.1</stax2-api.version>
