@@ -89,7 +89,7 @@ public class XmppNotifierService extends QueueBasedNotifierService<XmppNotificat
                         .setSecurityMode(executionOptions.getSecurityDisabled() ?
                                 ConnectionConfiguration.SecurityMode.disabled :
                                 ConnectionConfiguration.SecurityMode.required)
-                        .setServiceName(executionOptions.getServiceName())
+                        .setXmppDomain(executionOptions.getServiceName())
                         .setHost(executionOptions.getHost())
                         .setPort(executionOptions.getPort())
                         .build();
@@ -111,6 +111,8 @@ public class XmppNotifierService extends QueueBasedNotifierService<XmppNotificat
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "IO Error occurred while connecting host", e);
+        } catch (InterruptedException e) {
+            logger.log(Level.SEVERE, "InterruptedException occurred while connecting host", e);
         }
     }
 

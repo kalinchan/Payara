@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) [2016-2017] Payara Foundation and/or its affiliates. All rights reserved.
+ * Copyright (c) [2016-2022] Payara Foundation and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -46,6 +46,9 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.jid.parts.Resourcepart;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,10 +73,10 @@ public class XmppNotificationRunnable extends NotificationRunnable<XmppMessageQu
             try {
                 XmppMessage xmppMessage = queue.getMessage();
                 MultiUserChatManager manager = MultiUserChatManager.getInstanceFor(connection);
-                MultiUserChat multiUserChat = manager.getMultiUserChat(executionOptions.getRoomId() + "@" + executionOptions.getServiceName());
+                MultiUserChat multiUserChat = manager.getMultiUserChat(JidCreate.entityBareFrom(executionOptions.getRoomId() + "@" + executionOptions.getServiceName()));
                 if (multiUserChat != null) {
                     if (!multiUserChat.isJoined()) {
-                        multiUserChat.join(executionOptions.getUsername(), executionOptions.getPassword());
+                        multiUserChat.join(Resourcepart.from(executionOptions.getUsername()), executionOptions.getPassword());
                     }
 
                     Message message = new Message();
@@ -84,7 +87,7 @@ public class XmppNotificationRunnable extends NotificationRunnable<XmppMessageQu
                 }
                 logger.log(Level.FINE, "Message sent successfully");
             }
-            catch (XMPPException | SmackException e) {
+            catch (XMPPException | SmackException | XmppStringprepException | InterruptedException e) {
                 logger.log(Level.SEVERE, "Error occurred while sending message to room", e);
             }
         }
