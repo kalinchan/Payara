@@ -170,7 +170,7 @@ public class TestXmppNotifier extends TestNotifier {
                     .setSecurityMode(options.getSecurityDisabled()
                             ? ConnectionConfiguration.SecurityMode.disabled
                             : ConnectionConfiguration.SecurityMode.required)
-                    .setServiceName(options.getServiceName())
+                    .setXmppDomain(options.getServiceName())
                     .setHost(options.getHost())
                     .setPort(options.getPort())
                     .build();
@@ -181,7 +181,7 @@ public class TestXmppNotifier extends TestNotifier {
             } else {
                 connection.login();
             }
-        } catch (SmackException | IOException | XMPPException ex) {
+        } catch (SmackException | IOException | XMPPException | InterruptedException ex) {
             actionReport.setMessage(ex.getMessage());
             actionReport.setActionExitCode(ActionReport.ExitCode.FAILURE);
             queue.resetQueue();

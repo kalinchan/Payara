@@ -237,8 +237,9 @@
         <mail.version>1.6.2.payara-p1</mail.version>
         <javax.annotation-api.version>1.2</javax.annotation-api.version>
         <hazelcast.version>3.11.1</hazelcast.version>
-        <smack.version>4.1.9</smack.version>
-        <jxmpp.version>0.4.2</jxmpp.version>
+        <smack.version>4.3.4</smack.version>
+        <jxmpp.version>0.6.4</jxmpp.version>
+        <minidns.version>0.3.4</minidns.version>
         <xpp3.version>1.1.4c_7</xpp3.version>
         <snmp4j.version>2.5.3-payara.p1</snmp4j.version>
         <mockito.version>2.2.6</mockito.version>
