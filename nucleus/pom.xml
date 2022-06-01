@@ -1335,7 +1335,8 @@ Parent is ${project.parent}</echo>
                 <jdk>1.8</jdk>
             </activation>
             <properties>
-                <jersey.version>2.25.1.payara-p7</jersey.version>
+		<jersey.version>2.25.1.payara-p7</jersey.version>
+		<hazelcast.version>3.12.11</hazelcast.version>
             </properties>
         </profile>
         <profile>
