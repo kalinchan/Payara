@@ -120,17 +120,6 @@
           <snapshots><enabled>true</enabled></snapshots>
         </repository>
         <repository>
-            <id>payara-patched-externals</id>
-            <name>Payara Patched Externals</name>
-            <url>https://raw.github.com/payara/Payara_PatchedProjects/master</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
             <id>payara-nexus-artifacts</id>
             <url>https://nexus.payara.fish/repository/payara-artifacts</url>
             <releases>
@@ -154,15 +143,13 @@
             </snapshots>
         </pluginRepository>
         <pluginRepository>
-            <id>payara-patched-externals</id>
-            <name>Payara Patched Externals</name>
-            <url>https://raw.github.com/payara/Payara_PatchedProjects/master</url>
-            <!--<url>file:///opt/PayaraDev/Payara_PatchedProjects</url> -->
+            <id>payara-nexus-artifacts</id>
+            <url>https://nexus.payara.fish/repository/payara-artifacts</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
