@@ -2,7 +2,7 @@
 <!--
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-  Copyright (c) [2019] Payara Foundation and/or its affiliates. All rights reserved.
+  Copyright (c) [2019-2022] Payara Foundation and/or its affiliates. All rights reserved.
 
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -151,17 +151,6 @@
       <id>eclipse.microprofile</id>
       <name>Eclipse MicroProfile Repository</name>
       <url>https://repo.eclipse.org/content/groups/microprofile/</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>payara-patched-externals</id>
-      <name>Payara Patched Externals</name>
-      <url>https://raw.github.com/payara/Payara_PatchedProjects/master</url>
     </repository>
   </repositories>
   <build>
