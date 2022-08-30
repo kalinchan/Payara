@@ -47,7 +47,7 @@ holder.
   <parent>
     <groupId>org.glassfish.main.extras</groupId>
     <artifactId>glassfish-embedded-common</artifactId>
-    <version>4.14.1.2.191.37</version>
+    <version>4.14.1.2.191.38-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -64,7 +64,7 @@ holder.
         <dependency>
             <groupId>org.glassfish.main.core</groupId>
             <artifactId>glassfish</artifactId>
-            <version>4.14.1.2.191.37</version>
+            <version>4.14.1.2.191.38-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
