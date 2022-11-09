@@ -73,6 +73,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jakarta.xml.ws.handler.Handler;
 
+import javax.xml.namespace.QName;
+
 /**
  * This class serves for initialization of JAX-WS WSEndpoints when the context
  * is initialized on deployment.
@@ -275,6 +277,12 @@ public class WSServletContextListener implements ServletContextListener {
                 primaryWsdl, // primary WSDL
                 docs, // Collection of imported WSDLs and schema
                 catalogURL);
+        QName header = new QName(
+                "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                "Security", "wsse");
+        if (wsep.getBinding() != null) {
+            wsep.getBinding().addKnownHeader(header);
+        }
 
         //Fix for 6852 Add the ServletAdapter which implements the BoundEndpoint
         // container.addEndpoint(wsep);

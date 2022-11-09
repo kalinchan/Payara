@@ -71,6 +71,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.glassfish.api.logging.LogHelper;
 
+import javax.xml.namespace.QName;
+
 
 /**
  * Runtime dispatch information about one ejb web service
@@ -284,6 +286,12 @@ public class EjbRuntimeEndpointInfo {
                             docs, // Collection of imported WSDLs and schema
                             catalogURL
                             );
+                    QName header = new QName(
+                            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+                            "Security", "wsse");
+                    if (wsep.getBinding() != null) {
+                        wsep.getBinding().addKnownHeader(header);
+                    }
 
                     String uri = endpoint.getEndpointAddressUri();
                     String urlPattern = uri.startsWith("/") ? uri : "/" + uri;
