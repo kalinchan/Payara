@@ -52,7 +52,7 @@
     <artifactId>wsit_quicklook</artifactId>
     <name>Glassfish Web Services Quicklook</name>
     <packaging>jar</packaging>
-    <version>4.14.1.2.191.39-SNAPSHOT</version>
+    <version>4.14.1.2.191.39</version>
     <description>This pom describes how to run QuickLook tests on the Glassfish Bundle</description>
 
     <build>
