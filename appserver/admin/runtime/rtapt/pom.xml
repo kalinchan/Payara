@@ -51,7 +51,7 @@
     <groupId>org.glassfish.admin.runtime.rtapt</groupId>
     <artifactId>rtapt</artifactId>
     <packaging>pom</packaging>
-    <version>1.14.1.2.191.39-SNAPSHOT</version>
+    <version>1.14.1.2.191.40-SNAPSHOT</version>
     <name>Runtime Annotations and Annotation Processor</name>  
 
     <scm>
