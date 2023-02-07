@@ -1,0 +1,33 @@
+#!groovy
+@Library('PayaraTestLibrary') _
+
+pipeline {
+    agent none
+    stages {
+        stage ('Build and Analysis') {
+	    agent {
+		label 'ubuntu'
+	    }
+	    steps {
+		withMaven(jdk: 'zulu-11', publisherStrategy: 'EXPLICIT') {
+	            withSonarQubeEnv() {
+                        withCredentials([string(credentialsId: 'kchan-sonar', variable: 'login')]) {
+                            sh "mvn clean install sonar:sonar -Dsonar.projectKey=kchan -Dsonar.login=${login}"
+                        }
+                    }
+                }
+	    }
+        }
+        stage ('Quality Gate') {
+	    agent {
+		label 'ubuntu'
+            }
+	    steps {
+		timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true, credentialsId: 'kchan-sonar'
+                }
+	    }
+	}
+    }
+
+}
