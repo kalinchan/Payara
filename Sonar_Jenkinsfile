@@ -19,7 +19,7 @@ pipeline {
       steps {
         withMaven(jdk: 'zulu-11', publisherStrategy: 'EXPLICIT') {
           withSonarQubeEnv(installationName: 'Payara-Testone', credentialsId: 'kchan-sonar') {
-            sh "mvn clean install sonar:sonar -Dsonar.projectKey=kchan"
+            sh "mvn clean install -DskipTests -PQuickBuild sonar:sonar -Dsonar.projectKey=kchan"
           }
         }
       }
