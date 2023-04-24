@@ -40,7 +40,7 @@
     holder.
 
 -->
-<!--"Portions Copyright [2016-2022] [Payara Foundation and/or its affiliates]" -->
+<!--"Portions Copyright [2016-2023] [Payara Foundation and/or its affiliates]" -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -184,7 +184,7 @@
         <saaj-api.version>1.3.4</saaj-api.version>
         <hk2.version>2.5.0-b44</hk2.version>
         <hk2.plugin.version>2.5.0-b44</hk2.plugin.version>
-        <hibernate.validator.version>5.2.5.Final.payara-p2</hibernate.validator.version>
+        <hibernate.validator.version>5.2.5.Final.payara-p3</hibernate.validator.version>
         <javax.validation.version>1.1.0.Final</javax.validation.version>
         <classmate.version>1.3.3</classmate.version>
         <jboss.logging.version>3.3.1.Final</jboss.logging.version>
