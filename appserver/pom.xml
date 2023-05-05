@@ -117,7 +117,7 @@
         
         <nimbus-jose-jwt.version>8.20</nimbus-jose-jwt.version>
         <accessors-smart.version>1.2</accessors-smart.version>
-        <json-smart.version>2.4.8</json-smart.version>
+        <json-smart.version>2.4.10</json-smart.version>
         
         <uc-pkg-bootstrap.version>1.122-57.2889</uc-pkg-bootstrap.version>
         <webservices.version>2.3.2-b608.payara-p6</webservices.version>
