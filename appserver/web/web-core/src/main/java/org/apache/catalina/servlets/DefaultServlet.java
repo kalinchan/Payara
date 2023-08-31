@@ -56,6 +56,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Portions Copyright [2023] [Payara Foundation and/or its affiliates]
 
 package org.apache.catalina.servlets;
 
@@ -864,28 +865,6 @@ public class DefaultServlet
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             // END IASRI 4878272
             return;
-        }
-
-        // If the resource is not a collection, and the resource path
-        // ends with "/" or "\", return NOT FOUND
-        if (cacheEntry.context == null) {
-            if (path.endsWith("/") || (path.endsWith("\\"))) {
-                /* IASRI 4878272
-                // Check if we're included so we can return the appropriate 
-                // missing resource name in the error
-                String requestUri = (String) request.getAttribute(
-                    RequestDispatcher.INCLUDE_REQUEST_URI);
-                if (requestUri == null) {
-                    requestUri = request.getRequestURI();
-                }
-                 response.sendError(HttpServletResponse.SC_NOT_FOUND,
-                                    requestUri);
-                */
-                // BEGIN IASRI 4878272
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                // END IASRI 4878272
-                return;
-            }
         }
 
         // Check if the conditions specified in the optional If headers are
