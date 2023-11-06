@@ -47,7 +47,7 @@
     <parent>
         <groupId>org.glassfish.main</groupId>
         <artifactId>glassfish-main-aggregator</artifactId>
-        <version>4.1.2.191.46-SNAPSHOT</version>
+        <version>4.1.2.191.46</version>
         <relativePath>../../../</relativePath>
     </parent>
 
