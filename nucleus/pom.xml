@@ -121,7 +121,7 @@
         </repository>
         <repository>
             <id>payara-nexus-artifacts</id>
-            <url>https://nexus.payara.fish/repository/payara-artifacts</url>
+            <url>https://nexus.dev.payara.fish/repository/payara-artifacts</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -131,7 +131,7 @@
         </repository>
         <repository>
             <id>payara-nexus-patch-distributions</id>
-            <url>https://nexus.payara.fish/repository/payara-patches</url>
+            <url>https://nexus.dev.payara.fish/repository/payara-patches</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -154,7 +154,7 @@
         </pluginRepository>
         <pluginRepository>
             <id>payara-nexus-artifacts</id>
-            <url>https://nexus.payara.fish/repository/payara-artifacts</url>
+            <url>https://nexus.dev.payara.fish/repository/payara-artifacts</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -1359,7 +1359,7 @@
             <distributionManagement>
                 <snapshotRepository>
                     <id>payara-nexus</id>
-                    <url>https://nexus.payara.fish/content/repositories/payara-snapshots</url>
+                    <url>https://nexus.dev.payara.fish/content/repositories/payara-snapshots</url>
                 </snapshotRepository>
             </distributionManagement>
 
@@ -1372,7 +1372,7 @@
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>payara-nexus</serverId>
-                            <nexusUrl>https://nexus.payara.fish/</nexusUrl>
+                            <nexusUrl>https://nexus.dev.payara.fish/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
