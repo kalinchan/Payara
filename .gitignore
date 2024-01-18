@@ -24,3 +24,4 @@ nb-configuration.xml
 appserver/extras/arquillian-containers/payara-common/dependency-reduced-pom.xml
 appserver/tests/quicklook/quicklook_summary.txt
 **/nbproject
+appserver/packager/legal/src/main/resources/glassfish/legal/3RD-PARTY-LICENSE.txt
