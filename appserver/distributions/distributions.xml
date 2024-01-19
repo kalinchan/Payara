@@ -85,7 +85,7 @@
     </target>
     <target name="create-glassfish-distributions" depends="create-glassfish-images">
         <!--<install.legal.fragments image.dir="${glassfish.image.dir}" delete.includes="3RD-PARTY-LICENSE-WEB-PROFILE.txt"/>-->
-        <install.legal.fragments image.dir="${installer.image.dir}" delete.includes="3RD-PARTY-LICENSE-WEB-PROFILE.txt"/>
+<!--        <install.legal.fragments image.dir="${installer.image.dir}" delete.includes="3RD-PARTY-LICENSE-WEB-PROFILE.txt"/>-->
         <!--<install.legal.fragments image.dir="${glassfish.image.dir.l10n}" delete.includes="3RD-PARTY-LICENSE-WEB-PROFILE.txt"/>-->
         <!--<install.legal.fragments image.dir="${installer.image.dir.l10n}" delete.includes="3RD-PARTY-LICENSE-WEB-PROFILE.txt"/>-->
         <antcall target="create-distributions"/>
