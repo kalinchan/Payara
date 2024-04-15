@@ -40,7 +40,7 @@
     holder.
 
 -->
-<!--"Portions Copyright [2016-2023] [Payara Foundation and/or its affiliates]" -->
+<!--"Portions Copyright [2016-2024] [Payara Foundation and/or its affiliates]" -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -235,7 +235,7 @@
         <command.security.maven.plugin.isFailureFatal>false</command.security.maven.plugin.isFailureFatal>
         <mail.version>1.6.2.payara-p1</mail.version>
         <javax.annotation-api.version>1.2</javax.annotation-api.version>
-        <hazelcast.version>3.11.1</hazelcast.version>
+        <hazelcast.version>3.2.13</hazelcast.version>
         <smack.version>4.3.4</smack.version>
         <jxmpp.version>0.6.4</jxmpp.version>
         <minidns.version>0.3.4</minidns.version>
