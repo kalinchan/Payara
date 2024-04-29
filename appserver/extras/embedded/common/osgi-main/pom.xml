@@ -48,7 +48,7 @@
   <parent>
     <groupId>org.glassfish.main.extras</groupId>
     <artifactId>glassfish-embedded-common</artifactId>
-    <version>4.14.1.2.191.48</version>
+    <version>4.14.1.2.191.49-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
