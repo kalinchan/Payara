@@ -40,7 +40,7 @@
     holder.
 
 -->
-<!--"Portions Copyright [2016-2024] [Payara Foundation and/or its affiliates]" -->
+<!-- Portions Copyright 2016-2024 Payara Foundation and/or its affiliates -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -76,92 +76,6 @@
             <comments>A business-friendly OSS license</comments>
         </license>
     </licenses>
-
-    <repositories>
-        <repository>
-            <id>jvnet-nexus-releases</id>
-            <name>Java.net Releases Repositories</name>
-            <url>https://maven.java.net/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jvnet-nexus-staging</id>
-            <name>Java.net Staging Repositories</name>
-            <url>https://maven.java.net/content/repositories/staging</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jvnet-nexus-promoted</id>
-            <name>Java.net Promoted Repositories</name>
-            <url>https://maven.java.net/content/repositories/promoted/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>eclipse.microprofile</id>
-            <name>Eclipse MicroProfile Repository</name>
-            <url>https://repo.eclipse.org/content/groups/microprofile/</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>payara-nexus-artifacts</id>
-            <url>https://nexus.dev.payara.fish/repository/payara-artifacts</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>payara-nexus-patch-distributions</id>
-            <url>https://nexus.dev.payara.fish/repository/payara-patches</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>jvnet-nexus-promoted</id>
-            <name>Java.net Promoted Repositories</name>
-            <url>https://maven.java.net/content/repositories/promoted/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>payara-nexus-artifacts</id>
-            <url>https://nexus.dev.payara.fish/repository/payara-artifacts</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
