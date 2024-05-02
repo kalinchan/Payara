@@ -171,8 +171,10 @@
     </pluginRepositories>
 
     <properties>
-        <maven.javadoc.plugin.version>2.10.4</maven.javadoc.plugin.version>
-        <maven.source.plugin.version>3.0.1</maven.source.plugin.version>
+        <maven.javadoc.plugin.version>3.4.1</maven.javadoc.plugin.version>
+        <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
+        <maven.install.plugin.version>3.1.0</maven.install.plugin.version>
+        <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -292,19 +294,40 @@
                             <docencoding>UTF-8</docencoding>
                             <includeDependencySources>false</includeDependencySources>
                             <!-- This parameter is to be added when using JDK8 -->
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <doclint>none</doclint>
+                            <finalName>payara-${project.version}</finalName>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>aggregate</id>
+                                <id>attach-javadoc-aggregate</id>
+                                <phase>pre-site</phase>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <verbose>true</verbose>
+                                </configuration>
                                 <goals>
-                                    <goal>aggregate</goal>
-                                    <goal>aggregate-jar</goal>
+                                    <goal>aggregate-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>javadoc-jar</id>
+                                <goals>
+                                    <goal>jar</goal>
                                 </goals>
                                 <phase>pre-site</phase>
+                                <inherited>false</inherited>
                                 <configuration>
-                                    <!-- Specific configuration for the aggregate report -->
-                                    <finalName>payara-4.1.2.191.49-SNAPSHOT</finalName>
+                                    <classesDirectory>${project.build.directory}/site/apidocs</classesDirectory>
+                                    <classifier>javadoc</classifier>
+                                    <archive>
+                                        <manifestFile />
+                                    </archive>
+                                    <finalName>payara-${project.version}</finalName>
                                 </configuration>
                             </execution>
                         </executions>
@@ -387,10 +410,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.4</version>
-                    <configuration>
-                        <skip>true</skip>
-                    </configuration>
+                    <version>${maven.install.plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -404,6 +424,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
                     <version>2.5.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
