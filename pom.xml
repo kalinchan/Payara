@@ -344,6 +344,11 @@
 
         <profile>
             <id>GenerateThirdPartyLicenseFile</id>
+            <modules>
+                <module>nucleus</module>
+                <module>appserver</module>
+                <module>api</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
