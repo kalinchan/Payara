@@ -162,11 +162,13 @@
         <nucleus.install.dir.name>nucleus</nucleus.install.dir.name>
 
         <javadoc.skip>false</javadoc.skip>
+        <maven.javadoc.plugin.version>2.10.4</maven.javadoc.plugin.version>
         <maven.clean.plugin.version>3.1.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
         <maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
         <maven.plugin.api.version>3.6.0</maven.plugin.api.version>
+        <maven.install.plugin.version>3.0.0-M1</maven.install.plugin.version>
         <osgi-resource-locator.version>1.0.1</osgi-resource-locator.version>
         <sjsxp.version>1.0</sjsxp.version>
         <org.apache.felix.main.version>4.2.1</org.apache.felix.main.version>
@@ -181,6 +183,7 @@
         <ant.version>1.9.16</ant.version>
         <ant-launcher.version>1.9.16</ant-launcher.version>
         <ldapbp.version>1.0</ldapbp.version>
+        <maven.jar.plugin.version>3.1.1</maven.jar.plugin.version>
         <maven.build.helper.plugin.version>3.0.0</maven.build.helper.plugin.version>
         <maven.antlr.plugin.version>2.2</maven.antlr.plugin.version>
         <maven.jaxws.plugin.version>2.5</maven.jaxws.plugin.version>
@@ -311,14 +314,13 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven.javadoc.plugin.version}</version>
                     <configuration>
-                        <!-- This parameter is to be added when using JDK8 -->
-                        <doclint>none</doclint>
+                        <additionalparam>${javadoc.options}</additionalparam>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>${maven.source.plugin.version}</version>
+                    <version>2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -390,9 +392,19 @@
                     <version>${maven.deploy.plugin.version}</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven.install.plugin.version}</version>
+                </plugin>
+                <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>apt-maven-plugin</artifactId>
                     <version>1.0-alpha-5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar.plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.glassfish.hk2</groupId>
@@ -1225,6 +1237,15 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>doclint-java8-disable</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <javadoc.options>-Xdoclint:none</javadoc.options>
+            </properties>
         </profile>
         <profile>
             <id>jdk8</id>
