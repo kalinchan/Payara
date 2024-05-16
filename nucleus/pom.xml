@@ -52,7 +52,6 @@
 
     <groupId>fish.payara</groupId>
     <artifactId>payara-nucleus-parent</artifactId>
-    <version>4.1.2.191.49-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Payara Nucleus Parent Project</name>
 
@@ -78,45 +77,17 @@
     </licenses>
 
     <repositories>
+        <!-- Try Maven central first, not last, which happens when omitted here -->
         <repository>
-            <id>jvnet-nexus-releases</id>
-            <name>Java.net Releases Repositories</name>
-            <url>https://maven.java.net/content/repositories/releases/</url>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </repository>
-        <repository>
-            <id>jvnet-nexus-staging</id>
-            <name>Java.net Staging Repositories</name>
-            <url>https://maven.java.net/content/repositories/staging</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jvnet-nexus-promoted</id>
-            <name>Java.net Promoted Repositories</name>
-            <url>https://maven.java.net/content/repositories/promoted/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>eclipse.microprofile</id>
-            <name>Eclipse MicroProfile Repository</name>
-            <url>https://repo.eclipse.org/content/groups/microprofile/</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
         </repository>
         <repository>
             <id>payara-nexus-artifacts</id>
@@ -129,8 +100,18 @@
             </snapshots>
         </repository>
         <repository>
-            <id>payara-nexus-patch-distributions</id>
-            <url>https://nexus.dev.payara.fish/repository/payara-patches</url>
+            <id>payara-nexus-snapshots</id>
+            <url>https://nexus.dev.payara.fish/repository/payara-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>payara-nexus-enterprise-distributions</id>
+            <url>https://nexus.dev.payara.fish/repository/payara-enterprise</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -138,12 +119,46 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>payara-nexus-enterprise-artifacts</id>
+            <url>https://nexus.dev.payara.fish/repository/payara-enterprise-artifacts-private</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>payara-nexus-enterprise-snapshots</id>
+            <url>https://nexus.dev.payara.fish/repository/payara-enterprise-snapshots-private</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>eclipse.microprofile</id>
+            <name>Eclipse MicroProfile Repository</name>
+            <url>https://repo.eclipse.org/content/groups/microprofile/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <!-- Enable this to allow downloading Eclipse MicroProfile Snapshot builds -->
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
+
     <pluginRepositories>
+        <!-- Try Maven central first, not last, which happens when omitted here -->
         <pluginRepository>
-            <id>jvnet-nexus-promoted</id>
-            <name>Java.net Promoted Repositories</name>
-            <url>https://maven.java.net/content/repositories/promoted/</url>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -154,6 +169,16 @@
         <pluginRepository>
             <id>payara-nexus-artifacts</id>
             <url>https://nexus.dev.payara.fish/repository/payara-artifacts</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>payara-nexus-snapshots</id>
+            <url>https://nexus.dev.payara.fish/repository/payara-snapshots</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -248,13 +273,12 @@
         <nucleus.install.dir.name>nucleus</nucleus.install.dir.name>
 
         <javadoc.skip>false</javadoc.skip>
-        <maven.javadoc.plugin.version>2.10.4</maven.javadoc.plugin.version>
         <maven.clean.plugin.version>3.1.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
         <maven.war.plugin.version>3.2.2</maven.war.plugin.version>
         <maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
         <maven.plugin.api.version>3.6.0</maven.plugin.api.version>
-        <maven.install.plugin.version>3.0.0-M1</maven.install.plugin.version>
+        <maven.install.plugin.version>3.1.0</maven.install.plugin.version>
         <osgi-resource-locator.version>1.0.1</osgi-resource-locator.version>
         <sjsxp.version>1.0</sjsxp.version>
         <org.apache.felix.main.version>4.2.1</org.apache.felix.main.version>
@@ -269,7 +293,7 @@
         <ant.version>1.9.16</ant.version>
         <ant-launcher.version>1.9.16</ant-launcher.version>
         <ldapbp.version>1.0</ldapbp.version>
-        <maven.jar.plugin.version>3.1.1</maven.jar.plugin.version>
+        <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
         <maven.build.helper.plugin.version>3.0.0</maven.build.helper.plugin.version>
         <maven.antlr.plugin.version>2.2</maven.antlr.plugin.version>
         <maven.jaxws.plugin.version>2.5</maven.jaxws.plugin.version>
@@ -397,16 +421,8 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>${maven.javadoc.plugin.version}</version>
-                    <configuration>
-                        <additionalparam>${javadoc.options}</additionalparam>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>2.1</version>
+                    <version>${maven.source.plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
