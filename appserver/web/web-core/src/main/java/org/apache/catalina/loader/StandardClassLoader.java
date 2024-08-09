@@ -59,6 +59,8 @@
 
 package org.apache.catalina.loader;
 
+import jakarta.security.jacc.Policy;
+import jakarta.security.jacc.PolicyFactory;
 import org.apache.catalina.LogFacade;
 import org.apache.naming.JndiPermission;
 import org.glassfish.web.loader.Reloader;
@@ -888,7 +890,7 @@ public class StandardClassLoader extends URLClassLoader implements Reloader {
     protected final PermissionCollection getPermissions(CodeSource codeSource) {
         if (!policy_refresh) {
             // Refresh the security policies
-            Policy policy = Policy.getPolicy();
+            Policy policy = PolicyFactory.getPolicyFactory().getPolicy();
             policy.refresh();
             policy_refresh = true;
         }

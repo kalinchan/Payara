@@ -46,7 +46,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.security.Policy;
+import jakarta.security.jacc.Policy;
+import jakarta.security.jacc.PolicyFactory;
 import org.glassfish.appclient.client.acc.AppClientContainer;
 import org.glassfish.appclient.client.acc.Util;
 
@@ -142,7 +143,7 @@ public class LaunchSecurityHelper {
         int idx = firstFreePolicyIndex();
         URI policyFileURI = policyFile.toURI();
         java.security.Security.setProperty("policy.url." + idx, policyFileURI.toASCIIString());
-        Policy p = Policy.getPolicy();
+        Policy p = PolicyFactory.getPolicyFactory().getPolicy();
         p.refresh();
     }
 }
