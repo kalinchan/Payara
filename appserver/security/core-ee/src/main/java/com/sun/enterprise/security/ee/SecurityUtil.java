@@ -42,13 +42,10 @@ package com.sun.enterprise.security.ee;
 
 import static java.util.logging.Level.FINE;
 
-import java.security.Policy;
+import jakarta.security.jacc.*;
+
 import java.util.Collection;
 import java.util.logging.Logger;
-
-import jakarta.security.jacc.PolicyConfiguration;
-import jakarta.security.jacc.PolicyConfigurationFactory;
-import jakarta.security.jacc.PolicyContextException;
 
 import org.glassfish.api.deployment.DeploymentContext;
 import org.glassfish.api.deployment.OpsParams;
@@ -138,7 +135,7 @@ public class SecurityUtil {
             
             // Only do refresh policy if the deleted context was in service
             if (wasInService) {
-                Policy.getPolicy().refresh();
+                PolicyFactory.getPolicyFactory().getPolicy().refresh();
             }
 
         } catch (java.lang.ClassNotFoundException cnfe) {
@@ -204,7 +201,7 @@ public class SecurityUtil {
                 }
             }
 
-            Policy.getPolicy().refresh();
+            PolicyFactory.getPolicyFactory().getPolicy().refresh();
         } catch (ClassNotFoundException | PolicyContextException cnfe) {
             throw new IASSecurityException(cnfe);
         }

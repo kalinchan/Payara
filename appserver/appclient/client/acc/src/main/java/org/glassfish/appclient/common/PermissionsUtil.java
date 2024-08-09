@@ -55,7 +55,10 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.security.NoSuchAlgorithmException;
 import java.security.PermissionCollection;
-import java.security.Policy;
+import jakarta.security.jacc.Policy;
+import jakarta.security.jacc.PolicyContext;
+import jakarta.security.jacc.PolicyFactory;
+
 import java.security.URIParameter;
 import java.security.cert.Certificate;
 
@@ -129,14 +132,8 @@ public class PermissionsUtil {
     }
     
     private static PermissionCollection getEEPolicyPermissions(URL fileUrl) throws IOException {
-        try {
-            return 
-                Policy.getInstance("JavaPolicy", new URIParameter(fileUrl.toURI()))
-                      .getPermissions(new CodeSource(
-                              new URL(GlobalPolicyUtil.CLIENT_TYPE_CODESOURCE), (Certificate[]) null));
-        } catch (NoSuchAlgorithmException | MalformedURLException | URISyntaxException e) {
-            throw new IllegalStateException(e);
-        }
+        return PolicyFactory.getPolicyFactory().getPolicy("JavaPolicy")
+                .getPermissionCollection(PolicyContext.get(PolicyContext.SUBJECT));
     }
 
     private static String getClientInstalledPath() {

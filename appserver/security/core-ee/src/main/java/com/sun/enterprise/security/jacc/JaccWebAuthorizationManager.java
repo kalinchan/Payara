@@ -62,8 +62,25 @@ import com.sun.enterprise.security.jacc.cache.PermissionCacheFactory;
 import com.sun.enterprise.security.web.integration.WebPrincipal;
 import com.sun.enterprise.security.web.integration.WebSecurityManagerFactory;
 import com.sun.logging.LogDomains;
-
 import fish.payara.jacc.JaccConfigurationFactory;
+import jakarta.security.enterprise.CallerPrincipal;
+import jakarta.security.jacc.Policy;
+import jakarta.security.jacc.PolicyConfiguration;
+import jakarta.security.jacc.PolicyConfigurationFactory;
+import jakarta.security.jacc.PolicyContext;
+import jakarta.security.jacc.PolicyContextException;
+import jakarta.security.jacc.PolicyFactory;
+import jakarta.security.jacc.WebResourcePermission;
+import jakarta.security.jacc.WebRoleRefPermission;
+import jakarta.security.jacc.WebUserDataPermission;
+import jakarta.servlet.http.HttpServletRequest;
+import org.glassfish.deployment.common.SecurityRoleMapperFactory;
+import org.glassfish.exousia.AuthorizationService;
+import org.glassfish.exousia.mapping.DefaultPrincipalMapper;
+import org.glassfish.internal.api.ServerContext;
+import org.glassfish.security.common.Group;
+import org.glassfish.security.common.PrincipalImpl;
+import org.glassfish.security.common.Role;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -72,37 +89,29 @@ import java.net.URL;
 import java.security.AccessControlException;
 import java.security.CodeSource;
 import java.security.Permission;
-import java.security.Policy;
 import java.security.Principal;
 import java.security.PrivilegedActionException;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import jakarta.security.jacc.PolicyConfiguration;
-import jakarta.security.jacc.PolicyConfigurationFactory;
-import jakarta.security.jacc.PolicyContext;
-import jakarta.security.jacc.PolicyContextException;
-import jakarta.security.jacc.WebResourcePermission;
-import jakarta.security.jacc.WebRoleRefPermission;
-import jakarta.security.jacc.WebUserDataPermission;
-import jakarta.servlet.http.HttpServletRequest;
-
-import org.glassfish.internal.api.ServerContext;
-import org.glassfish.security.common.Group;
-import org.glassfish.security.common.PrincipalImpl;
-import org.glassfish.security.common.Role;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.sun.enterprise.security.common.AppservAccessController.privilegedException;
-import java.util.HashSet;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.SEVERE;
-import jakarta.security.enterprise.CallerPrincipal;
 import static org.glassfish.api.web.Constants.ADMIN_VS;
 
 /**
@@ -149,7 +158,7 @@ public class JaccWebAuthorizationManager {
 
     // The JACC policy provider. This is the pluggable lower level authorization module
     // to which this class delegates all authorization queries.
-    protected Policy policy = Policy.getPolicy();
+    protected Policy policy = PolicyFactory.getPolicyFactory().getPolicy();
     protected PolicyConfigurationFactory policyConfigurationFactory;
     protected PolicyConfiguration policyConfiguration;
     protected CodeSource codesource;
@@ -175,6 +184,8 @@ public class JaccWebAuthorizationManager {
     private final WebSecurityDeployerProbeProvider probeProvider = new WebSecurityDeployerProbeProvider();
     private boolean register = true;
 
+    private AuthorizationService authorizationService;
+
     public JaccWebAuthorizationManager(WebBundleDescriptor webBundleDescriptor, ServerContext serverContext, WebSecurityManagerFactory webSecurityManagerFactory, boolean register) throws PolicyContextException {
         this.register = register;
         this.webBundleDescriptor = webBundleDescriptor;
@@ -183,8 +194,21 @@ public class JaccWebAuthorizationManager {
         this.webSecurityManagerFactory = webSecurityManagerFactory;
 
         String appname = getAppId();
-        SecurityRoleMapperFactoryGen.getSecurityRoleMapperFactory().setAppNameForContext(getAppId(), CONTEXT_ID);
+        SecurityRoleMapperFactory securityRoleMapperFactory = SecurityRoleMapperFactoryGen.getSecurityRoleMapperFactory();
+        securityRoleMapperFactory.setAppNameForContext(getAppId(), CONTEXT_ID);
         initialise(appname);
+
+        Collection<String> roles = new ArrayList<>();
+
+        while (securityRoleMapperFactory.getRoleMapper(getAppId()).getRoles().hasNext()){
+            roles.add((String) securityRoleMapperFactory.getRoleMapper(getAppId()).getRoles().next());
+        }
+
+        this.authorizationService = new AuthorizationService(
+                CONTEXT_ID,
+                () -> SecurityContext.getCurrent().getSubject(),
+                () -> new DefaultPrincipalMapper(CONTEXT_ID, roles)
+        );
     }
 
     // fix for CR 6155144
@@ -397,7 +421,7 @@ public class JaccWebAuthorizationManager {
 
         // Refresh policy if the context was in service
         if (wasInService) {
-            Policy.getPolicy().refresh();
+            PolicyFactory.getPolicyFactory().getPolicy().refresh();
         }
 
         PermissionCacheFactory.removePermissionCache(uncheckedPermissionCache);
@@ -615,7 +639,7 @@ public class JaccWebAuthorizationManager {
         }
 
         // Check whether the requested permission is granted to any of the given principals
-        return policy.implies(getProtectionDomain(principals), requestedPermission);
+        return principals == null ? policy.implies(requestedPermission) : policy.implies(requestedPermission, principals);
     }
 
     private PolicyConfigurationFactory getPolicyFactory() throws PolicyContextException {
