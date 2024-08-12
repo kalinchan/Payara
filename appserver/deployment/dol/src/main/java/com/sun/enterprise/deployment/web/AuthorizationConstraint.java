@@ -58,7 +58,7 @@ public interface AuthorizationConstraint extends WebDescriptor {
      * 
      * @return the enumeration of security roles.
      */
-    Enumeration getSecurityRoles();
+    Enumeration<SecurityRole> getSecurityRoles();
 
     /**
      * Add a security role to the constraint.

@@ -41,9 +41,12 @@
 
 package com.sun.enterprise.security.auth.login;
 
+import com.sun.enterprise.security.common.UserPrincipal;
+
+import java.io.Serializable;
 import java.security.Principal;
 
-public class DistinguishedPrincipalCredential {
+public class DistinguishedPrincipalCredential implements UserPrincipal, Serializable {
 
     private final Principal principal;
 
@@ -58,5 +61,14 @@ public class DistinguishedPrincipalCredential {
     @Override
     public String toString() {
         return "DistingushedPrincipal: " + principal;
+    }
+
+    @Override
+    public String getName() {
+        if (principal == null) {
+            return null;
+        }
+
+        return principal.getName();
     }
 }
