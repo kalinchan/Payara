@@ -533,4 +533,7 @@ public abstract class WebBundleDescriptor extends CommonResourceBundleDescriptor
     }
 
     public abstract Set<String> getConflictedMimeMappingExtensions();
+
+    public abstract ClassLoader getApplicationClassLoader();
+    public abstract void setApplicationClassLoader(ClassLoader applicationClassLoader);
 }

@@ -41,12 +41,14 @@
 package com.sun.enterprise.security.ee;
 
 import com.sun.enterprise.security.ContainerSecurityLifecycle;
+import com.sun.enterprise.security.PolicyLoader;
 import com.sun.enterprise.security.jaspic.config.GFAuthConfigFactory;
 import com.sun.logging.LogDomains;
 
 import java.security.Security;
 import java.util.logging.Logger;
 
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import org.glassfish.common.util.Constants;
@@ -70,6 +72,9 @@ import static jakarta.security.auth.message.config.AuthConfigFactory.DEFAULT_FAC
 public class JavaEESecurityLifecycle implements ContainerSecurityLifecycle, PostConstruct {
 
     private static final Logger LOG = LogDomains.getLogger(JavaEESecurityLifecycle.class, LogDomains.SECURITY_LOGGER);
+
+    @Inject
+    PolicyLoader policyLoader;
 
     @Override
     public void postConstruct() {
@@ -96,6 +101,7 @@ public class JavaEESecurityLifecycle implements ContainerSecurityLifecycle, Post
             }
         }
         initializeJASPIC();
+        policyLoader.loadPolicy();
     }
 
     private void initializeJASPIC() {

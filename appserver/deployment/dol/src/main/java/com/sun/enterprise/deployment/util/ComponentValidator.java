@@ -49,9 +49,7 @@ package com.sun.enterprise.deployment.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.security.AccessController;
 import java.security.Principal;
-import java.security.PrivilegedAction;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -879,31 +877,27 @@ public class ComponentValidator extends DefaultDOLVisitor implements ComponentVi
 
         if (runAs != null &&
                 (runAs.getPrincipal() == null ||
-                    runAs.getPrincipal().length() == 0) &&
+                        runAs.getPrincipal().isEmpty()) &&
                 application != null && application.getRoleMapper() != null) {
 
             String principalName = null;
             String roleName = runAs.getRoleName();
 
-            final Subject fs = (Subject)application.getRoleMapper().getRoleToSubjectMapping().get(roleName);
+            final Subject fs = application.getRoleMapper().getRoleToSubjectMapping().get(roleName);
             if (fs != null) {
-                principalName = (String)AccessController.doPrivileged(new PrivilegedAction() {
-                    @Override
-                    public Object run() {
-                        Set<Principal> pset = fs.getPrincipals();
-                        Principal prin = null;
-                        if (pset.size() > 0) {
-                            prin = pset.iterator().next();
-                            DOLUtils.getDefaultLogger().log(Level.WARNING,
-                            "enterprise.deployment.backend.computeRunAsPrincipal",
-                            new Object[] { prin.getName() });
-                        }
-                        return (prin != null) ? prin.getName() : null;
+                Set<Principal> principals = fs.getPrincipals();
+                if (!principals.isEmpty()) {
+                    principalName = principals.iterator().next().getName();
+                    if (!principals.isEmpty()) {
+                        principalName = principals.iterator().next().getName();
+                        DOLUtils.getDefaultLogger().log(Level.WARNING,
+                                "enterprise.deployment.backend.computeRunAsPrincipal",
+                                principalName);
                     }
-                });
+                }
             }
 
-            if (principalName == null || principalName.length() == 0) {
+            if (principalName == null || principalName.isEmpty()) {
                 throw new RuntimeException("The RunAs role " + "\"" + roleName + "\"" +
                     " is not mapped to a principal.");
             }

@@ -143,6 +143,7 @@ public class WebBundleDescriptorImpl extends WebBundleDescriptor {
     private boolean servletInitializersEnabled = true;
     private boolean jaxrsRolesAllowedEnabled = true;
     private String appContextId;
+    private ClassLoader applicationClassLoader;
 
     /**
      * Construct an empty web app [{0}].
@@ -2632,7 +2633,17 @@ public class WebBundleDescriptorImpl extends WebBundleDescriptor {
          }
     }
 
-    /*******************************************************************************************
+     @Override
+     public ClassLoader getApplicationClassLoader() {
+         return applicationClassLoader;
+     }
+
+     @Override
+     public void setApplicationClassLoader(ClassLoader applicationClassLoader) {
+         this.applicationClassLoader = applicationClassLoader;
+     }
+
+     /*******************************************************************************************
      * END
      * Deployment Consolidation to Suppport Multiple Deployment API Clients
      *******************************************************************************************/

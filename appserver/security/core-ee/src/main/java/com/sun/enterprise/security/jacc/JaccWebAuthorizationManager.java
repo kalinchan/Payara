@@ -195,7 +195,19 @@ public class JaccWebAuthorizationManager {
         String appname = getAppId();
         SecurityRoleMapperFactory securityRoleMapperFactory = SecurityRoleMapperFactoryGen.getSecurityRoleMapperFactory();
         securityRoleMapperFactory.setAppNameForContext(getAppId(), CONTEXT_ID);
-        initialise(appname);
+        webBundleDescriptor.getContextParametersSet()
+                .stream()
+                .filter(param -> param.getName().equals(PolicyConfigurationFactory.FACTORY_NAME))
+                .findAny()
+                .map(param -> loadFactory(webBundleDescriptor, param.getValue()))
+                .ifPresent(clazz -> installPolicyConfigurationFactory(webBundleDescriptor, clazz));
+
+        webBundleDescriptor.getContextParametersSet()
+                .stream()
+                .filter(param -> param.getName().equals(PolicyFactory.FACTORY_NAME))
+                .findAny()
+                .map(param -> loadFactory(webBundleDescriptor, param.getValue()))
+                .ifPresent(clazz -> installPolicyFactory(webBundleDescriptor, clazz));
 
         Collection<String> roles = new ArrayList<>();
 
@@ -368,16 +380,10 @@ public class JaccWebAuthorizationManager {
      * @return true is the resource is granted, false if denied
      */
     public boolean hasRoleRefPermission(String servletName, String role, Principal principal) {
-        WebRoleRefPermission requestedPermission = new WebRoleRefPermission(servletName, role);
-
-        Set<Principal> principalSetFromSecurityContext = getSecurityContext(principal).getPrincipalSet();
-        boolean isGranted = checkPermission(requestedPermission, principalSetFromSecurityContext);
-        if (!isGranted) {
-            isGranted = checkPermissionForModifiedPrincipalSet(principalSetFromSecurityContext, isGranted, requestedPermission);
-        }
+        boolean isGranted = authorizationService.checkWebRoleRefPermission(servletName, role, getSecurityContext(principal).getSubject());
         
         if (logger.isLoggable(Level.FINE)) {
-            logger.log(FINE, "[Web-Security] hasRoleRef perm: {0}", requestedPermission);
+            logger.log(FINE, "[Web-Security] hasRoleRef perm: {0}", servletName);
             logger.log(FINE, "[Web-Security] hasRoleRef isGranted: {0}", isGranted);
         }
 
@@ -848,6 +854,37 @@ public class JaccWebAuthorizationManager {
             } else {
                 logger.log(FINE, "[Web-Security] Checking with Principals: null");
             }
+        }
+    }
+
+    private Class<?> loadFactory(WebBundleDescriptor webBundleDescriptor, String factoryClassName) {
+        try {
+            return
+                    webBundleDescriptor.getApplicationClassLoader()
+                            .loadClass(factoryClassName);
+
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void installPolicyConfigurationFactory(WebBundleDescriptor webBundleDescriptor, Class<?> factoryClass) {
+        ClassLoader existing = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(webBundleDescriptor.getApplicationClassLoader());
+            AuthorizationService.installPolicyConfigurationFactory(factoryClass);
+        } finally {
+            Thread.currentThread().setContextClassLoader(existing);
+        }
+    }
+
+    private void installPolicyFactory(WebBundleDescriptor webBundleDescriptor, Class<?> factoryClass) {
+        ClassLoader existing = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(webBundleDescriptor.getApplicationClassLoader());
+            AuthorizationService.installPolicyFactory(factoryClass);
+        } finally {
+            Thread.currentThread().setContextClassLoader(existing);
         }
     }
 

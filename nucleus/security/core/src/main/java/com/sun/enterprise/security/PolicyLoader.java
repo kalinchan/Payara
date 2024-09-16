@@ -146,10 +146,17 @@ public class PolicyLoader {
                 LOGGER.log(WARNING, policyProviderConfigOverrideWarning, new String[] { POLICY_PROVIDER_13, policyClassName });
             }
         }
-        
+
         if (policyClassName != null) {
-            // Now install the policy provider if one was identified
-            installPolicyFromClassName(policyClassName, j2ee13);
+            try {
+                Policy policy = loadPolicy(policyClassName);
+                PolicyFactory.getPolicyFactory().setPolicy(policy);
+            } catch (Exception exception) {
+                LOGGER.log(SEVERE, policyInstallError, exception.getLocalizedMessage());
+                throw new RuntimeException(exception);
+            }
+            LOGGER.fine("Policy set to: " + policyClassName);
+            isPolicyInstalled = true;
         } else {
             // No value for policy provider found
             LOGGER.warning(policyNotLoadingWarning);
@@ -249,6 +256,20 @@ public class PolicyLoader {
             
             System.setProperty(name, value);
         }
+    }
+    private Policy loadPolicy(String javaPolicyClassName) throws ReflectiveOperationException, SecurityException {
+        Object javaPolicyInstance =
+                Thread.currentThread()
+                        .getContextClassLoader()
+                        .loadClass(javaPolicyClassName)
+                        .getDeclaredConstructor()
+                        .newInstance();
+
+        if (!(javaPolicyInstance instanceof Policy)) {
+            throw new RuntimeException(STRING_MANAGER.getString("enterprise.security.plcyload.not14"));
+        }
+
+        return (Policy) javaPolicyInstance;
     }
 
     private void installPolicyFromClassName(String policyClassName, boolean j2ee13) {
