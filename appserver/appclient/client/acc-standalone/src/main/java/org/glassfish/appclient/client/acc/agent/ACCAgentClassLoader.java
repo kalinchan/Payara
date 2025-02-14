@@ -41,8 +41,11 @@
 
 package org.glassfish.appclient.client.acc.agent;
 
+import org.glassfish.appclient.common.ClassPathUtils;
+
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -84,19 +87,14 @@ public class ACCAgentClassLoader extends URLClassLoader {
          * and the second will temporarily handle the application resources -
          * typically for a splash screen.
          */
-        super(userClassPath(),
-                prepareLoader(GFSystemClassPath(), parent.getParent()));
+        super(new URL[] {},
+                prepareLoader(parent));
     }
     
-    private static URLClassLoader prepareLoader(final URL[] urls, final ClassLoader parent) {
-        return AccessController.doPrivileged(new PrivilegedAction<URLClassLoader>() {
-
-            @Override
-            public URLClassLoader run() {
-                return new URLClassLoader(urls, parent);
-            }
-            
-        });
+    private static URLClassLoader prepareLoader(final ClassLoader parent) {
+        return new URLClassLoader(
+                new URL[] {ClassPathUtils.getGFClientJarURL()},
+                new ClassLoaderWrapper(parent));
     }
 
     public ACCAgentClassLoader(URL[] urls) {
@@ -104,7 +102,7 @@ public class ACCAgentClassLoader extends URLClassLoader {
     }
 
     public ACCAgentClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
+        super(urls, new ClassLoaderWrapper(parent));
     }
 
     public ACCAgentClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
@@ -117,8 +115,8 @@ public class ACCAgentClassLoader extends URLClassLoader {
      *
      * @param path
      */
-    void appendToClassPathForInstrumentation(String path) {
-        LOGGER.log(FINEST, "Added to system class path : {0}", path);
+    void appendToClassPathForInstrumentation(String path) throws MalformedURLException {
+        addURL(new File(path).toURI().toURL());
     }
 
     @Override
@@ -154,56 +152,5 @@ public class ACCAgentClassLoader extends URLClassLoader {
             isActive = (propValue != null);
         }
         return isActive;
-    }
-
-    private static URL[] userClassPath() {
-        final URI GFSystemURI = GFSystemURI();
-        final List<URL> result = classPathToURLs(System.getProperty("java.class.path"));
-        for (ListIterator<URL> it = result.listIterator(); it.hasNext();) {
-            final URL url = it.next();
-            try {
-                if (url.toURI().equals(GFSystemURI)) {
-                    it.remove();
-                }
-            } catch (URISyntaxException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-
-//        result.addAll(classPathToURLs(System.getenv("APPCPATH")));
-
-        return result.toArray(new URL[result.size()]);
-    }
-
-    private static URL[] GFSystemClassPath() {
-        try {
-            return new URL[] {GFSystemURI().normalize().toURL()};
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private static URI GFSystemURI() {
-        try {
-            Class agentClass = Class.forName("org.glassfish.appclient.client.acc.agent.AppClientContainerAgent");
-            return agentClass.getProtectionDomain().getCodeSource().getLocation().toURI().normalize();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private static List<URL> classPathToURLs(final String classPath) {
-        if (classPath == null) {
-            return Collections.emptyList();
-        }
-        final List<URL> result = new ArrayList<URL>();
-        try {
-            for (String classPathElement : classPath.split(File.pathSeparator)) {
-                result.add(new File(classPathElement).toURI().normalize().toURL());
-            }
-            return result;
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
     }
 }

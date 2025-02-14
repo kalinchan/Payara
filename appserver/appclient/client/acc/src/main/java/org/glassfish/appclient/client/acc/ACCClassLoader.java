@@ -42,6 +42,7 @@
 
 package org.glassfish.appclient.client.acc;
 
+import org.glassfish.appclient.common.ClassPathUtils;
 import org.glassfish.appclient.common.ClientClassLoaderDelegate;
 
 import java.io.ByteArrayOutputStream;
@@ -86,7 +87,7 @@ public class ACCClassLoader extends URLClassLoader {
         ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
         boolean currentCLWasAgentCL = currentClassLoader.getClass().getName().equals(AGENT_LOADER_CLASS_NAME);
         ClassLoader parentForACCCL = currentCLWasAgentCL ? currentClassLoader.getParent() : currentClassLoader;
-        PrivilegedAction<ACCClassLoader> action = () -> new ACCClassLoader(userClassPath(), parentForACCCL,
+        PrivilegedAction<ACCClassLoader> action = () -> new ACCClassLoader(ClassPathUtils.getJavaClassPathForAppClient(), parentForACCCL,
                 shouldTransform);
         instance = AccessController.doPrivileged(action);
 
