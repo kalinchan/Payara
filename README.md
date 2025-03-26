@@ -1,4 +1,4 @@
-![#badassfish](payara-logo-blue.png)
+Test![#badassfish](payara-logo-blue.png)
 
 # Payara Platform Community Edition
 
