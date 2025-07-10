@@ -81,14 +81,14 @@ public abstract class ModuleScanner<T> extends JavaEEScanner implements Scanner<
     protected ClassLoader classLoader = null;
     protected Parser classParser = null;
 
-    private Set<URI> scannedURI = new HashSet<>();
+    protected Set<URI> scannedURI = new HashSet<>();
 
     private boolean needScanAnnotation = false;
 
     @Inject
     PayaraExecutorService executorService;
-    
-    private Set<String> entries = new HashSet<>();
+
+    protected Set<String> entries = new HashSet<>();
 
     public static final Logger deplLogger = com.sun.enterprise.deployment.util.DOLUtils.deplLogger;
 
