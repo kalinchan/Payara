@@ -2033,6 +2033,9 @@ public class PayaraMicroImpl implements PayaraMicroBoot {
         if (sslCert != null) {
             preBootCommands.add(new BootCommand("set", "configs.config.server-config.network-config.protocols.protocol.https-listener.ssl.cert-nickname=" + sslCert));
         }
+        if (autoBindSsl || sslPort != Integer.MIN_VALUE) {
+            runtimeDir.generateKeyStoreIfNeeded(sslCert != null ? sslCert : "s1as");
+        }
     }
 
     private void configurePhoneHome() {

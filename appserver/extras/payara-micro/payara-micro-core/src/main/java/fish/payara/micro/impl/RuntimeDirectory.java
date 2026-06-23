@@ -42,9 +42,11 @@ package fish.payara.micro.impl;
 import com.sun.enterprise.glassfish.bootstrap.JarUtil;
 import com.sun.enterprise.util.io.FileUtils;
 import fish.payara.micro.PayaraMicro;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -254,7 +256,10 @@ class RuntimeDirectory {
                 }
             }
         } else {
-            System.setProperty("javax.net.ssl.keyStore", keystorePath.toAbsolutePath().toString());
+            File keystoreFile = keystorePath.toFile();
+            if (keystoreFile.exists()) {
+                System.setProperty("javax.net.ssl.keyStore", keystorePath.toAbsolutePath().toString());
+            }
         }
 
         Path truststorePath = configDir.toPath().resolve("cacerts.p12");
@@ -271,7 +276,19 @@ class RuntimeDirectory {
                 }
             }
         } else {
-            System.setProperty("javax.net.ssl.trustStore", truststorePath.toAbsolutePath().toString());
+            File truststoreFile = truststorePath.toFile();
+            if (truststoreFile.exists()) {
+                System.setProperty("javax.net.ssl.trustStore", truststorePath.toAbsolutePath().toString());
+            } else {
+                // TrustManagerFactoryImpl requires javax.net.ssl.trustStore to be set explicitly —
+                // it does not fall back to the JDK cacerts the way standard JSSE does.
+                // Point at the JDK's own CA bundle so we get the maintained store without bundling our own.
+                Path jdkCacerts = Paths.get(System.getProperty("java.home"), "lib", "security", "cacerts");
+                if (jdkCacerts.toFile().exists()) {
+                    System.setProperty("javax.net.ssl.trustStore", jdkCacerts.toAbsolutePath().toString());
+                    System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
+                }
+            }
         }
     }
 
@@ -303,6 +320,100 @@ class RuntimeDirectory {
         if (alternateHZConfigFile.canRead()) {
             Files.copy(alternateHZConfigFile.toPath(), configDir.toPath().resolve(alternateHZConfigFile.getName()),StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+
+    void generateKeyStoreIfNeeded(String certAlias) {
+        // Skip if user already provided their own keystore
+        if (System.getProperty("javax.net.ssl.keyStore") != null) {
+            return;
+        }
+
+        if (certAlias == null || certAlias.isBlank()) {
+            LOGGER.severe("certAlias must not be null or blank; cannot generate keystore.");
+            return;
+        }
+
+        Path keystorePath = configDir.toPath().resolve("keystore.p12");
+
+        if (!keystorePath.toFile().exists()) {
+            String keytoolBin = System.getProperty("os.name", "").toLowerCase().contains("win")
+                    ? "keytool.exe" : "keytool";
+            Path keytoolPath = Paths.get(System.getProperty("java.home"), "bin", keytoolBin);
+
+            if (!keytoolPath.toFile().exists()) {
+                LOGGER.severe("keytool not found at " + keytoolPath
+                        + ". Cannot generate self-signed certificate."
+                        + " Provide a keystore via -Djavax.net.ssl.keyStore or use a JDK that includes keytool.");
+                return;
+            }
+
+            String password = "changeit";
+            String dn = "CN=localhost,OU=Payara,O=Payara Foundation,L=Great Malvern,ST=Worcestershire,C=UK";
+
+            // Use a temp file + atomic move to prevent partial/corrupt keystore
+            Path tempPath = keystorePath.resolveSibling("keystore.p12.tmp");
+            if (isTempDir) {
+                FileUtils.deleteOnExit(tempPath.toFile());
+            }
+
+            try {
+                ProcessBuilder pb = new ProcessBuilder(
+                        keytoolPath.toAbsolutePath().toString(),
+                        "-genkeypair",
+                        "-keyalg", "RSA",
+                        "-keysize", "2048",
+                        "-alias", certAlias,
+                        "-dname", dn,
+                        "-validity", "3650",
+                        "-keystore", tempPath.toAbsolutePath().toString(),
+                        "-storetype", "PKCS12",
+                        "-keypass", password,
+                        "-storepass", password,
+                        "-noprompt",
+                        "-J-Dsun.security.internal.keytool.skid"
+                );
+                pb.redirectErrorStream(true);
+                Process process = pb.start();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        LOGGER.fine("keytool: " + line);
+                    }
+                }
+                int exitCode = process.waitFor();
+                if (exitCode != 0) {
+                    LOGGER.severe("Failed to generate self-signed certificate: keytool exited with code " + exitCode);
+                    Files.deleteIfExists(tempPath);
+                    return;
+                }
+                try {
+                    Files.move(tempPath, keystorePath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException ex) {
+                    LOGGER.log(Level.SEVERE, "Failed to atomically move generated keystore into place", ex);
+                    return;
+                }
+                LOGGER.info("Generated self-signed certificate with alias '" + certAlias + "' at " + keystorePath);
+                // Fix 4: Register generated keystore for deletion in temp-dir mode
+                if (isTempDir) {
+                    FileUtils.deleteOnExit(keystorePath.toFile());
+                }
+            } catch (IOException ex) {
+                try { Files.deleteIfExists(tempPath); } catch (IOException ignored) {}
+                LOGGER.log(Level.SEVERE, "Failed to generate self-signed certificate", ex);
+                return;
+            } catch (InterruptedException ex) {
+                try { Files.deleteIfExists(tempPath); } catch (IOException ignored) {}
+                Thread.currentThread().interrupt();
+                LOGGER.log(Level.SEVERE, "Interrupted while generating self-signed certificate", ex);
+                return;
+            }
+        } else {
+            LOGGER.fine("Reusing existing keystore at " + keystorePath);
+        }
+
+        System.setProperty("javax.net.ssl.keyStore", keystorePath.toAbsolutePath().toString());
+        System.setProperty("javax.net.ssl.keyStorePassword", "changeit");
+        System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
     }
 
 }
