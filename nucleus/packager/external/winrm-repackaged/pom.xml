@@ -70,13 +70,15 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
-                            *;inline=true
+                            *;scope=compile;inline=true
                         </Embed-Dependency>
                         <Export-Package>
-                            io.cloudsoft.winrm4j.winrm,
-                            com.google.common.io
+                            io.cloudsoft.winrm4j.*
                         </Export-Package>
-                        <Private-Package>*</Private-Package>
+                        <Import-Package>
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Private-Package>!*</Private-Package>
                     </instructions>
                     <unpackBundle>true</unpackBundle>
                 </configuration>
